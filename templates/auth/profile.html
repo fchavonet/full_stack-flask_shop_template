@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Profile</h2>
+
+<!-- -->
+<h3>Update information</h3>
+
+<form method="post">
+	<input type="hidden" name="form_type" value="info">
+	
+	<label>Username:</label>
+	<input type="text" name="username" value="{{ current_user.username }}" required>
+	
+	<label>Email:</label>
+	<input type="email" name="email" value="{{ current_user.email }}" required>
+	
+	<button type="submit">
+		Save
+	</button>
+</form>
+
+<!-- -->
+<h3 class="mt-4">Change password</h3>
+
+<form method="post">
+	<input type="hidden" name="form_type" value="password">
+	
+	<label>New password:</label>
+	<input type="password" name="password" required>
+
+	<button type="submit">
+		Change Password
+	</button>
+</form>
+{% endblock %}
