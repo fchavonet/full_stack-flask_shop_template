@@ -1,0 +1,1 @@
+console.log("Flask Shop Template script loaded.");
