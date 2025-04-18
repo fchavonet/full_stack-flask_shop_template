@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -55,3 +56,39 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     # Available stock quantity.
     quantity = db.Column(db.Integer, nullable=False, default=0)
+
+
+class Order(db.Model):
+    """
+    Order model for user purchases.
+    """
+
+    # Primary key for the order record.
+    id = db.Column(db.Integer, primary_key=True)
+    # Foreign key referencing the user who placed the order.
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    # Timestamp when the order was created.
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # Relationship to associated order items.
+    items = db.relationship("OrderItem", backref="order", lazy=True)
+
+
+class OrderItem(db.Model):
+    """
+    Order item model for products in an order.
+    """
+
+    # Primary key for the order item record.
+    id = db.Column(db.Integer, primary_key=True)
+    # Foreign key referencing the parent order.
+    order_id = db.Column(db.Integer, db.ForeignKey("order.id"), nullable=False)
+    # Foreign key referencing the product (nullable if removed).
+    product_id = db.Column(db.Integer, db.ForeignKey( "product.id"), nullable=True)  # peut devenir NULL si supprimé
+    # Quantity of this product in the order.
+    quantity = db.Column(db.Integer, nullable=False)
+    # Local copy of the product title.
+    product_title = db.Column(db.String(100), nullable=False)
+    # Local copy of the product price.
+    product_price = db.Column(db.Float, nullable=False)
+    # Relationship to the Product model.
+    product = db.relationship("Product", foreign_keys=[product_id])

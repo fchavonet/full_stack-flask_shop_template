@@ -1,11 +1,11 @@
 import os
-from flask import Flask, current_app, flash, redirect, render_template, request, url_for
+from flask import Flask, current_app, flash, redirect, render_template, request, session, url_for
 from flask_login import current_user, LoginManager, login_required
 from werkzeug.utils import secure_filename
 
 from auth import auth_bp
 from config import Config
-from models import db, Product, User
+from models import db, Order, OrderItem, Product, User
 
 
 def allowed_file(filename: str) -> bool:
@@ -15,6 +15,25 @@ def allowed_file(filename: str) -> bool:
 
     # Return True if filename has an allowed extension.
     return ("." in filename and filename.rsplit(".", 1)[1].lower() in current_app.config["IMAGE_EXTENSIONS"])
+
+
+def get_cart():
+    """
+    Retrieve shopping cart from session.
+    """
+
+    # Return cart or empty dict if not set.
+    return session.get("cart", {})
+
+
+def save_cart(cart):
+    """
+    Save shopping cart to session.
+    """
+
+    # Store cart in session and mark modified.
+    session["cart"] = cart
+    session.modified = True
 
 
 def create_app() -> Flask:
@@ -213,6 +232,139 @@ def create_app() -> Flask:
         with app.app_context():
             db.create_all()
             print("Database initialized.")
+
+    @app.route("/add-to-cart/<int:product_id>", methods=["POST"])
+    @login_required
+    def add_to_cart(product_id):
+        """
+        Add item to shopping cart.
+        """
+
+        # Retrieve product or 404.
+        product = Product.query.get_or_404(product_id)
+        quantity = int(request.form.get("quantity", 1))
+
+        # Validate quantity.
+        if quantity <= 0:
+            flash("Invalid quantity.", "warning")
+            return redirect(url_for("catalog"))
+
+        # Get current cart.
+        cart = get_cart()
+
+        key = str(product_id)
+        current_quantity = cart.get(key, 0)
+
+        # Check stock availability.
+        if current_quantity + quantity > product.quantity:
+            flash("Not enough stock available.", "danger")
+            return redirect(url_for("catalog"))
+
+        # Update cart and save.
+        cart[key] = current_quantity + quantity
+        save_cart(cart)
+
+        flash(f"Added {quantity} x {product.title} to cart.", "success")
+        return redirect(url_for("catalog"))
+
+    @app.route("/cart")
+    @login_required
+    def cart():
+        """
+        Display shopping cart contents.
+        """
+
+        cart = get_cart()
+        items = []
+        total = 0
+
+        for product_id, quantity in cart.items():
+            product = Product.query.get(int(product_id))
+            if product:
+                # Calculate subtotal and add to total.
+                subtotal = product.price * quantity
+                total += subtotal
+                items.append({
+                    "product": product,
+                    "quantity": quantity,
+                    "subtotal": subtotal
+                })
+
+        # Render cart template with items and total.
+        return render_template("cart.html", items=items, total=total)
+
+    @app.route("/remove-from-cart/<int:product_id>", methods=["POST"])
+    @login_required
+    def remove_from_cart(product_id):
+        """
+        Remove item from shopping cart.
+        """
+
+        cart = get_cart()
+        product_id_str = str(product_id)
+
+        if product_id_str in cart:
+            # Remove item and save cart.
+            del cart[product_id_str]
+            save_cart(cart)
+            flash("Item removed from cart.", "info")
+        return redirect(url_for("cart"))
+
+    @app.route("/checkout", methods=["POST"])
+    @login_required
+    def checkout():
+        """
+        Process checkout and create order.
+        """
+
+        cart = get_cart()
+
+        # Ensure cart is not empty.
+        if not cart:
+            flash("Your cart is empty.", "warning")
+            return redirect(url_for("cart"))
+
+        # Create order record.
+        order = Order(user_id=current_user.id)
+        db.session.add(order)
+
+        for product_id, quantity in cart.items():
+            product = Product.query.get(int(product_id))
+
+            # Validate stock per item.
+            if not product or product.quantity < quantity:
+                flash(f"Not enough stock for {product.title}.", "danger")
+                return redirect(url_for("cart"))
+
+            # Decrease product stock.
+            product.quantity -= quantity
+
+            # Create order item record.
+            order_item = OrderItem(
+                order=order,
+                product_id=product.id,
+                quantity=quantity,
+                product_title=product.title,
+                product_price=product.price
+            )
+            db.session.add(order_item)
+
+        # Commit all changes and clear cart.
+        db.session.commit()
+        session.pop("cart", None)
+        flash("Order placed successfully!", "success")
+        return redirect(url_for("order_history"))
+
+    @app.route("/orders")
+    @login_required
+    def order_history():
+        """
+        Show user's past orders.
+        """
+
+        # Retrieve orders sorted by creation date.
+        orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).all()
+        return render_template("orders.html", orders=orders)
 
     return app
 

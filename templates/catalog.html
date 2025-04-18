@@ -7,8 +7,19 @@
         <a href="{{ url_for('product_detail', product_id=product.id) }}">
             <img src="{{ url_for('static', filename='images/product_pictures/' + product.image) }}" width="150">
             <h3>{{ product.title }}</h3>
-            <p>${{ product.price }} ({{ product.quantity }} available)</p>
+            {% if product.quantity == 0 %}
+            <p>SOLD OUT</p>
+            {% else %}
+            <p>${{ "%.2f"|format(product.price) }} ({{ product.quantity }} available)</p>
+            {% endif %}
         </a>
+
+        {% if current_user.is_authenticated and not current_user.is_admin and product.quantity > 0 %}
+        <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}">
+            <input type="number" name="quantity" value="1" min="1" max="{{ product.quantity }}">
+            <button type="submit">Add to cart</button>
+        </form>
+        {% endif %}
     </div>
     {% endfor %}
 </div>
