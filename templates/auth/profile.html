@@ -3,28 +3,44 @@
 <h2>Profile</h2>
 
 <!-- -->
-<h3>Update information</h3>
+<img width="100" height="100" src="{{ url_for('static', filename='images/profile_pictures/' + current_user.profile_picture) }}" alt="Profile picture">
+
+<!-- -->
+<h3>Change profile picture:</h3>
+
+<form method="post" enctype="multipart/form-data">
+	<input type="hidden" name="form_type" value="picture">
+
+	<input type="file" name="picture" accept="image/*" required>
+
+	<button type="submit">
+		Upload
+	</button>
+</form>
+
+<!-- -->
+<h3>Update information:</h3>
 
 <form method="post">
 	<input type="hidden" name="form_type" value="info">
-	
+
 	<label>Username:</label>
 	<input type="text" name="username" value="{{ current_user.username }}" required>
-	
+
 	<label>Email:</label>
 	<input type="email" name="email" value="{{ current_user.email }}" required>
-	
+
 	<button type="submit">
 		Save
 	</button>
 </form>
 
 <!-- -->
-<h3 class="mt-4">Change password</h3>
+<h3>Change password:</h3>
 
 <form method="post">
 	<input type="hidden" name="form_type" value="password">
-	
+
 	<label>New password:</label>
 	<input type="password" name="password" required>
 

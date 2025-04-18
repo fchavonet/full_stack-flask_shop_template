@@ -1,6 +1,8 @@
+import os
 import re
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_user, login_required, logout_user
+from werkzeug.utils import secure_filename
 
 from models import db, User
 
@@ -9,6 +11,13 @@ auth_bp = Blueprint("auth", __name__)
 
 # Require one uppercase and at least eight chars.
 PASSWORD_PATTERN = re.compile(r"^(?=.*[A-Z]).{8,}$")
+
+
+def allowed_file(filename: str) -> bool:
+    """
+    Check if filename extension is allowed.
+    """
+    return ("." in filename and filename.rsplit(".", 1)[1].lower() in current_app.config["ALLOWED_EXTENSIONS"])
 
 
 # REGISTER
@@ -39,8 +48,7 @@ def register():
             return redirect(url_for("auth.register"))
 
         # Check duplicates.
-        existing = User.query.filter(
-            (User.username == username) | (User.email == email)).first()
+        existing = User.query.filter((User.username == username) | (User.email == email)).first()
         if existing:
             flash("User already exists.", "warning")
             return redirect(url_for("auth.register"))
@@ -124,8 +132,7 @@ def profile():
                 return redirect(url_for("auth.profile"))
 
             # Check for duplicates.
-            duplicate = User.query.filter(((User.username == new_username) | (
-                User.email == new_email)) & (User.id != current_user.id)).first()
+            duplicate = User.query.filter(((User.username == new_username) | (User.email == new_email)) & (User.id != current_user.id)).first()
             if duplicate:
                 flash("Username or email already taken.", "warning")
                 return redirect(url_for("auth.profile"))
@@ -146,6 +153,44 @@ def profile():
             current_user.set_password(new_password)
             db.session.commit()
             flash("Password changed.", "success")
+            return redirect(url_for("auth.profile"))
+
+        if form_type == "picture":
+            # Handle profile picture upload.
+            if "picture" not in request.files:
+                flash("No file part.", "danger")
+                return redirect(url_for("auth.profile"))
+
+            file = request.files["picture"]
+
+            # Flash if no file was selected.
+            if file.filename == "":
+                flash("No selected file.", "warning")
+                return redirect(url_for("auth.profile"))
+
+            # Flash if file extension is not allowed.
+            if not allowed_file(file.filename):
+                flash("File type not allowed.", "danger")
+                return redirect(url_for("auth.profile"))
+
+            # Remove old picture if it is not the default.
+            old_filename = current_user.profile_picture
+            default_pic = current_app.config["DEFAULT_PROFILE_PICTURE"]
+            if old_filename != default_pic:
+                old_path = os.path.join(current_app.config["UPLOAD_FOLDER"], old_filename)
+                if os.path.exists(old_path):
+                    os.remove(old_path)
+
+            # Save new picture file.
+            ext = file.filename.rsplit(".", 1)[1].lower()
+            filename = secure_filename(f"user_{current_user.id}.{ext}")
+            upload_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+            file.save(upload_path)
+
+            # Update user record with new picture.
+            current_user.profile_picture = filename
+            db.session.commit()
+            flash("Profile picture updated.", "success")
             return redirect(url_for("auth.profile"))
 
     # Render profile page.

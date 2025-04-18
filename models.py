@@ -20,6 +20,8 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(256), nullable=False)
     # Flag indicating if user has admin rights.
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
+    # Filename for user profile picture.
+    profile_picture = db.Column(db.String(128), nullable=False, default="default.webp")
 
     def set_password(self, password: str) -> None:
         """
