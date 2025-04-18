@@ -5,7 +5,7 @@
     {% for product in products %}
     <div>
         <a href="{{ url_for('product_detail', product_id=product.id) }}">
-            <img src="{{ url_for('static', filename='images/product_pictures/' + product.image) }}" width="150">
+            <img width="150" height="150"  src="{{ url_for('static', filename='images/product_pictures/' + product.image) }}">
             <h3>{{ product.title }}</h3>
             {% if product.quantity == 0 %}
             <p>SOLD OUT</p>

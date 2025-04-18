@@ -67,10 +67,36 @@ def create_app() -> Flask:
     @app.route("/")
     def index():
         """
-        Render home page.
+        Render home page with featured products.
         """
 
-        return render_template("index.html")
+        # Query latest 5 products in descending ID order.
+        latest_products = Product.query.order_by(Product.id.desc()).limit(5).all()
+
+        # Import aggregation function.
+        from sqlalchemy import func
+
+        # Query top 5 products by total ordered quantity.
+        top_products = (
+            db.session.query(Product, func.sum(OrderItem.quantity).label("total"))
+            .join(OrderItem, Product.id == OrderItem.product_id)
+            .group_by(Product.id)
+            .order_by(func.sum(OrderItem.quantity).desc())
+            .limit(5)
+            .all()
+        )
+
+        # Render index template with product lists.
+        return render_template("index.html", latest_products=latest_products, top_products=[p for p, _ in top_products], title="Home")
+
+    @app.route("/about")
+    def about():
+        """
+        Render about page.
+        """
+
+        # Render about template.
+        return render_template("about.html", title="About")
 
     @app.route("/dashboard")
     @login_required
