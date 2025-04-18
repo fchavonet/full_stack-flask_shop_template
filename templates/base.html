@@ -28,6 +28,9 @@
 
 			<!-- -->
 			<ul>
+				<li>
+					<a href="{{ url_for('catalog') }}">Catalog</a>
+				</li>
 				{% if current_user.is_admin %}
 				<li>
 					<a href="{{ url_for('dashboard') }}">Dashboard</a>

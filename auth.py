@@ -17,7 +17,7 @@ def allowed_file(filename: str) -> bool:
     """
     Check if filename extension is allowed.
     """
-    return ("." in filename and filename.rsplit(".", 1)[1].lower() in current_app.config["ALLOWED_EXTENSIONS"])
+    return ("." in filename and filename.rsplit(".", 1)[1].lower() in current_app.config["IMAGE_EXTENSIONS"])
 
 
 # REGISTER
@@ -173,18 +173,23 @@ def profile():
                 flash("File type not allowed.", "danger")
                 return redirect(url_for("auth.profile"))
 
+            
+            profile_picture_folder = current_app.config["PROFILE_PICTURE_FOLDER"]
+            if not os.path.exists(profile_picture_folder):
+                os.makedirs(profile_picture_folder)
+
             # Remove old picture if it is not the default.
             old_filename = current_user.profile_picture
             default_pic = current_app.config["DEFAULT_PROFILE_PICTURE"]
             if old_filename != default_pic:
-                old_path = os.path.join(current_app.config["UPLOAD_FOLDER"], old_filename)
+                old_path = os.path.join(profile_picture_folder, old_filename)
                 if os.path.exists(old_path):
                     os.remove(old_path)
 
             # Save new picture file.
             ext = file.filename.rsplit(".", 1)[1].lower()
             filename = secure_filename(f"user_{current_user.id}.{ext}")
-            upload_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+            upload_path = os.path.join(profile_picture_folder, filename)
             file.save(upload_path)
 
             # Update user record with new picture.

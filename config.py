@@ -8,13 +8,17 @@ class Config:
     """
 
     SECRET_KEY = os.environ.get("SECRET_KEY") or "change-this-in-production"
-    SQLALCHEMY_DATABASE_URI = (os.environ.get("DATABASE_URL") or f"sqlite:///{os.path.join(basedir, 'app.db')}")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or f"sqlite:///{os.path.join(basedir, 'database.db')}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Profile picture upload.
-    UPLOAD_FOLDER = os.path.join(basedir, "static", "images/profile_pictures")
-    ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
-    MAX_CONTENT_LENGTH = 2 * 1024 * 1024
+    # Images upload configuration.
+    IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
+    MAX_CONTENT_LENGTH = 2 * 1024 * 1024  # 2MB
 
-    # Default picture filename
-    DEFAULT_PROFILE_PICTURE = "default.webp"
+    # Profile pictures.
+    PROFILE_PICTURE_FOLDER = os.path.join(basedir, "static", "images", "profile_pictures")
+    DEFAULT_PROFILE_PICTURE = "default_profile.webp"
+
+    # Product pictures.
+    PRODUCT_PICTURE_FOLDER = os.path.join(basedir, "static", "images", "product_pictures")
+    DEFAULT_PRODUCT_PICTURE = "default_product.webp"

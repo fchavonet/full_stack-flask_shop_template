@@ -1,4 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Dashboard</h1>
+<h1>Dashboard - Products List</h1>
+<a href="{{ url_for('add_product') }}">Add New Product</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th>Title</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td><img width="50" height="50" src="{{ url_for('static', filename='images/product_pictures/' + product.image) }}" alt="{{ product.title }}"></td>
+            <td>{{ product.title }}</td>
+            <td>{{ "%.2f"|format(product.price) }}</td>
+            <td>{{ product.quantity }}</td>
+            <td><a href="{{ url_for('edit_product', product_id=product.id) }}">Edit</a></td>
+            <td>
+                <form action="{{ url_for('delete_product', product_id=product.id) }}" method="post">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

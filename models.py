@@ -21,7 +21,7 @@ class User(UserMixin, db.Model):
     # Flag indicating if user has admin rights.
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
     # Filename for user profile picture.
-    profile_picture = db.Column(db.String(128), nullable=False, default="default.webp")
+    profile_picture = db.Column(db.String(128), default="default_profile.webp")
 
     def set_password(self, password: str) -> None:
         """
@@ -36,3 +36,22 @@ class User(UserMixin, db.Model):
         """
 
         return check_password_hash(self.password_hash, password)
+
+
+class Product(db.Model):
+    """
+    Product model for catalog items.
+    """
+
+    # Primary key for the product record.
+    id = db.Column(db.Integer, primary_key=True)
+    # Title of the product.
+    title = db.Column(db.String(100), nullable=False)
+    # Detailed description of the product.
+    description = db.Column(db.Text, nullable=False)
+    # Filename for product image.
+    image = db.Column(db.String(128), nullable=False, default="default_product.webp")
+    # Price of the product.
+    price = db.Column(db.Float, nullable=False)
+    # Available stock quantity.
+    quantity = db.Column(db.Integer, nullable=False, default=0)

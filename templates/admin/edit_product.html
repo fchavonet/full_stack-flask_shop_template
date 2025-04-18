@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Edit Product</h1>
+<form method="post" enctype="multipart/form-data">
+    <input type="text" name="title" value="{{ product.title }}" required><br>
+    <textarea name="description" required>{{ product.description }}</textarea><br>
+    <input type="number" step="0.01" name="price" value="{{ product.price }}" required><br>
+    <input type="number" name="quantity" value="{{ product.quantity }}" required><br>
+    <input type="file" name="image" accept="image/*"><br>
+    <button type="submit">Update Product</button>
+</form>
+{% endblock %}
