@@ -99,7 +99,7 @@
 						<!-- Cart button (desktop only) -->
 						<li class="nav-item me-3">
 							<a class="d-none d-lg-flex btn btn-sm btn-success position-relative" href="{{ url_for('cart') }}">
-								<i class="bi bi-basket-fill"></i>
+								<i class="bi bi-bag-fill"></i>
 
 								<span id="cart-quantity" class="badge position-absolute top-0 start-100 translate-middle rounded-circle bg-danger d-flex justify-content-center align-items-center">
 									{{ cart_quantity }}
@@ -161,9 +161,11 @@
 
 	<!-- MAIN -->
 	<main class="py-5 d-flex flex-grow-1 flex-shrink-0 justify-content-center align-items-center bg-white">
-		<div class="container">
+		<div class="container d-flex justify-content-center align-items-center">
+			<div style="width: 75%;">
 			{% block content %}
 			{% endblock %}
+			</div>
 		</div>
 	</main>
 

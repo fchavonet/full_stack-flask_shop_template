@@ -70,19 +70,19 @@ def create_app() -> Flask:
         Render home page with featured products.
         """
 
-        # Query latest 5 products in descending ID order.
-        latest_products = Product.query.order_by(Product.id.desc()).limit(5).all()
+        # Query latest 4 products in descending ID order.
+        latest_products = Product.query.order_by(Product.id.desc()).limit(4).all()
 
         # Import aggregation function.
         from sqlalchemy import func
 
-        # Query top 5 products by total ordered quantity.
+        # Query top 4 products by total ordered quantity.
         top_products = (
             db.session.query(Product, func.sum(OrderItem.quantity).label("total"))
             .join(OrderItem, Product.id == OrderItem.product_id)
             .group_by(Product.id)
             .order_by(func.sum(OrderItem.quantity).desc())
-            .limit(5)
+            .limit(4)
             .all()
         )
 
@@ -234,11 +234,24 @@ def create_app() -> Flask:
     @app.route("/catalog")
     def catalog():
         """
-        List all products.
+        List all products with optional sorting and pagination.
         """
 
-        products = Product.query.all()
-        return render_template("shop/catalog.html", title="Catalog", products=products)
+        sort_by = request.args.get("sort_by", "title")
+        page = request.args.get("page", 1, type=int)
+        per_page = 12
+
+        query = Product.query
+
+        if sort_by == "price_asc": query = query.order_by(Product.price.asc())
+        elif sort_by == "price_desc": query = query.order_by(Product.price.desc())
+        elif sort_by == "quantity_asc": query = query.order_by(Product.quantity.asc())
+        elif sort_by == "quantity_desc": query = query.order_by(Product.quantity.desc())
+        else: query = query.order_by(Product.title.asc())
+
+        products = query.paginate(page=page, per_page=per_page)
+
+        return render_template("shop/catalog.html", title="Catalog", products=products, sort_by=sort_by)
 
     @app.route("/product/<int:product_id>")
     def product_detail(product_id):

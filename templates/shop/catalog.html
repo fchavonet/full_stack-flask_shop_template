@@ -1,26 +1,59 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Catalog</h1>
-<div>
-    {% for product in products %}
-    <div>
-        <a href="{{ url_for('product_detail', product_id=product.id) }}">
-            <img width="150" height="150"  src="{{ url_for('static', filename='images/product_pictures/' + product.image) }}">
-            <h3>{{ product.title }}</h3>
-            {% if product.quantity == 0 %}
-            <p>SOLD OUT</p>
-            {% else %}
-            <p>${{ "%.2f"|format(product.price) }} ({{ product.quantity }} available)</p>
-            {% endif %}
-        </a>
+<!-- Sorting bar -->
+<form class="mb-4" method="get">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <label for="sort_by" class="col-form-label fw-bold">Sort by:</label>
+        </div>
 
-        {% if current_user.is_authenticated and not current_user.is_admin and product.quantity > 0 %}
-        <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}">
-            <input type="number" name="quantity" value="1" min="1" max="{{ product.quantity }}">
-            <button type="submit">Add to cart</button>
-        </form>
-        {% endif %}
+        <div class="col-auto">
+            <select class="form-select" name="sort_by" id="sort_by" onchange="this.form.submit()">
+                <option value="title" {% if sort_by=='title' %}selected{% endif %}>Name (A-Z)</option>
+                <option value="price_asc" {% if sort_by=='price_asc' %}selected{% endif %}>Price (Low to High)</option>
+                <option value="price_desc" {% if sort_by=='price_desc' %}selected{% endif %}>Price (High to Low)</option>
+                <option value="quantity_asc" {% if sort_by=='quantity_asc' %}selected{% endif %}>Quantity (Low to High)</option>
+                <option value="quantity_desc" {% if sort_by=='quantity_desc' %}selected{% endif %}>Quantity (High to Low)</option>
+            </select>
+        </div>
+    </div>
+</form>
+
+<!-- Product grid -->
+<div class="row">
+    {% for product in products.items %}
+    <div class="col-12 col-md-6 col-lg-3 mb-4">
+        {% include "components/product_card.html" %}
     </div>
     {% endfor %}
 </div>
+
+<!-- Pagination -->
+{% if products.pages > 1 %}
+<nav>
+    <ul class="p-0 m-0 pagination justify-content-center">
+        {% if products.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('catalog', page=products.prev_num, sort_by=sort_by) }}">&laquo;</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+        {% endif %}
+
+        {% for p in range(1, products.pages + 1) %}
+        <li class="page-item {% if p == products.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('catalog', page=p, sort_by=sort_by) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+
+        {% if products.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('catalog', page=products.next_num, sort_by=sort_by) }}">&raquo;</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
 {% endblock %}

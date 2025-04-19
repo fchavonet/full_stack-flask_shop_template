@@ -9,25 +9,10 @@
 <div>
     <h2>Top Products</h2>
 
-    <div>
+    <div class="row">
         {% for product in top_products %}
-        <div>
-            <a href="{{ url_for('product_detail', product_id=product.id) }}">
-                <img width="150" height="150" src="{{ url_for('static', filename='images/product_pictures/' + product.image) }}">
-                <h3>{{ product.title }}</h3>
-                {% if product.quantity == 0 %}
-                <p>SOLD OUT</p>
-                {% else %}
-                <p>${{ "%.2f"|format(product.price) }} ({{ product.quantity }} available)</p>
-                {% endif %}
-            </a>
-
-            {% if current_user.is_authenticated and not current_user.is_admin and product.quantity > 0 %}
-            <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}">
-                <input type="number" name="quantity" value="1" min="1" max="{{ product.quantity }}">
-                <button type="submit">Add to cart</button>
-            </form>
-            {% endif %}
+        <div class="col-12 col-lg-3 mb-4">
+            {% include "components/product_card.html" %}
         </div>
         {% endfor %}
     </div>
@@ -37,25 +22,10 @@
 <div>
     <h2>Latest Products</h2>
 
-    <div>
+    <div class="row">
         {% for product in latest_products %}
-        <div>
-            <a href="{{ url_for('product_detail', product_id=product.id) }}">
-                <img width="150" height="150" src="{{ url_for('static', filename='images/product_pictures/' + product.image) }}">
-                <h3>{{ product.title }}</h3>
-                {% if product.quantity == 0 %}
-                <p>SOLD OUT</p>
-                {% else %}
-                <p>${{ "%.2f"|format(product.price) }} ({{ product.quantity }} available)</p>
-                {% endif %}
-            </a>
-
-            {% if current_user.is_authenticated and not current_user.is_admin and product.quantity > 0 %}
-            <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}">
-                <input type="number" name="quantity" value="1" min="1" max="{{ product.quantity }}">
-                <button type="submit">Add to cart</button>
-            </form>
-            {% endif %}
+        <div class="col-12 col-lg-3 mb-4">
+            {% include "components/product_card.html" %}
         </div>
         {% endfor %}
     </div>
