@@ -106,9 +106,9 @@ def create_app() -> Flask:
         """
 
         if not current_user.is_admin:
-            return render_template("403.html"), 403
+            return render_template("error/403.html"), 403
         products = Product.query.all()
-        return render_template("admin/dashboard.html", products=products)
+        return render_template("admin/dashboard.html", title="Dashboard", products=products)
 
     @app.route("/dashboard/add-product", methods=["GET", "POST"])
     @login_required
@@ -118,7 +118,7 @@ def create_app() -> Flask:
         """
 
         if not current_user.is_admin:
-            return render_template("403.html"), 403
+            return render_template("error/403.html"), 403
 
         if request.method == "POST":
             # Get form fields.
@@ -165,7 +165,7 @@ def create_app() -> Flask:
         """
 
         if not current_user.is_admin:
-            return render_template("403.html"), 403
+            return render_template("error/403.html"), 403
 
         product = Product.query.get_or_404(product_id)
 
@@ -191,7 +191,7 @@ def create_app() -> Flask:
         """
 
         if not current_user.is_admin:
-            return render_template("403.html"), 403
+            return render_template("error/403.html"), 403
 
         product = Product.query.get_or_404(product_id)
 
@@ -238,7 +238,7 @@ def create_app() -> Flask:
         """
 
         products = Product.query.all()
-        return render_template("catalog.html", products=products)
+        return render_template("shop/catalog.html", title="Catalog", products=products)
 
     @app.route("/product/<int:product_id>")
     def product_detail(product_id):
@@ -247,17 +247,7 @@ def create_app() -> Flask:
         """
 
         product = Product.query.get_or_404(product_id)
-        return render_template("product_detail.html", product=product)
-
-    @app.cli.command("init-database")
-    def init_db():
-        """
-        Create database tables.
-        """
-
-        with app.app_context():
-            db.create_all()
-            print("Database initialized.")
+        return render_template("shop/product_detail.html", product=product)
 
     @app.route("/add-to-cart/<int:product_id>", methods=["POST"])
     @login_required
@@ -293,6 +283,16 @@ def create_app() -> Flask:
         flash(f"Added {quantity} x {product.title} to cart.", "success")
         return redirect(url_for("catalog"))
 
+    @app.context_processor
+    def inject_cart_quantity():
+        """
+        Inject total cart item count into template context.
+        """
+
+        cart = get_cart()
+        quantity = sum(cart.values()) if cart else 0
+        return dict(cart_quantity=quantity)
+
     @app.route("/cart")
     @login_required
     def cart():
@@ -317,7 +317,7 @@ def create_app() -> Flask:
                 })
 
         # Render cart template with items and total.
-        return render_template("cart.html", items=items, total=total)
+        return render_template("shop/cart.html", title="Cart", items=items, total=total)
 
     @app.route("/remove-from-cart/<int:product_id>", methods=["POST"])
     @login_required
@@ -390,7 +390,35 @@ def create_app() -> Flask:
 
         # Retrieve orders sorted by creation date.
         orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).all()
-        return render_template("orders.html", orders=orders)
+        return render_template("shop/orders.html", orders=orders)
+
+    @app.route("/terms_of_use")
+    def terms_of_use():
+        """
+        Render terms of use page.
+        """
+
+        # Render terms of use template.
+        return render_template("conditions/terms_of_use.html", title="Terms of Use")
+
+    @app.route("/legals")
+    def legals():
+        """
+        Render legals page.
+        """
+
+        # Render legals template.
+        return render_template("conditions/legals.html", title="Legals")
+
+    @app.cli.command("init-database")
+    def init_db():
+        """
+        Create database tables.
+        """
+
+        with app.app_context():
+            db.create_all()
+            print("Database initialized.")
 
     return app
 
