@@ -28,7 +28,7 @@
 		<nav class="navbar navbar-expand-lg navbar-dark bg-black shadow-sm">
 			<div class="container">
 				<!-- Brand -->
-				<a class="navbar-brand m-0 py-4 fs-6 fs-lg-5 fw-bold" href="{{ url_for('index') }}"><i class="bi bi-shop-window me-2"></i>FLASK SHOP TEMPLATE</a>
+				<a class="m-0 py-4 navbar-brand fs-6 fs-lg-5 fw-bold" href="{{ url_for('index') }}"><i class="bi bi-shop-window me-2"></i>FLASK SHOP TEMPLATE</a>
 
 				<div class="d-lg-none d-flex align-items-center ms-auto gap-2">
 					<!-- Hamburger button -->
@@ -139,8 +139,7 @@
 						{% else %}
 
 						<!-- Guest links: Login / Register -->
-						<ul
-							class="navbar m-0 p-0 list-unstyled d-flex flex-column flex-lg-row justify-content-center align-items-center">
+						<ul class="m-0 p-0 navbar list-unstyled d-flex flex-column flex-lg-row justify-content-center align-items-center">
 							<li class="nav-item">
 								<a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
 							</li>
@@ -161,23 +160,33 @@
 	</header>
 
 	<!-- MAIN -->
-	<main class="flex-grow-1 flex-shrink-0 bg-white">
+	<main class="py-5 d-flex flex-grow-1 flex-shrink-0 justify-content-center align-items-center bg-white">
 		<div class="container">
 			{% block content %}
 			{% endblock %}
-
-			<!-- Flash messages -->
-			{% with messages = get_flashed_messages(with_categories=True) %}
-			{% if messages %}
-			<section>
-				{% for category, message in messages %}
-				<p class="{{ category }}">{{ message }}</p>
-				{% endfor %}
-			</section>
-			{% endif %}
-			{% endwith %}
 		</div>
 	</main>
+
+	<!-- Flash messages -->
+	<div class="p-3 d-none d-lg-flex position-fixed bottom-0 end-0">
+		<div id="toast-container">
+			{% with messages = get_flashed_messages(with_categories=True) %}
+			{% for category, message in messages %}
+			{% set text_class = 'text-white' if category in ['success', 'danger', 'primary', 'dark'] else 'text-dark' %}
+			{% set close_class = 'btn-close-white' if text_class == 'text-white' else '' %}
+			<div class="mb-2 toast align-items-center border-0 bg-{{ category }} {{ text_class }} shadow-sm" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+				<div class="d-flex justify-content-between align-items-center">
+					<div class="toast-body">
+						{{ message }}
+					</div>
+
+					<button type="button" class="ms-2 me-2 m-auto btn-close {{ close_class }}" data-bs-dismiss="toast" aria-label="Close"></button>
+				</div>
+			</div>
+			{% endfor %}
+			{% endwith %}
+		</div>
+	</div>
 
 	<!-- FOOTER -->
 	<footer class="mt-auto text-white bg-black">
@@ -235,7 +244,7 @@
 				</div>
 
 				<!-- Accepted payment methods -->
-				<ul class="d-flex m-0 p-0 list-unstyled">
+				<ul class="m-0 p-0 d-flex list-unstyled">
 					<li class="me-1">
 						<svg role="img" width="38" height="24" viewBox="0 0 38 24" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
 							<title>American Express</title>
@@ -315,7 +324,7 @@
 				</ul>
 
 				<!-- Social media links-->
-				<ul class="d-flex m-0 p-0 list-unstyled">
+				<ul class="m-0 p-0 d-flex list-unstyled">
 					<li class="ms-2">
 						<a class="fs-4 link-light" href="#" target="_blank" aria-label="Facebook">
 							<i class="bi bi-facebook"></i>

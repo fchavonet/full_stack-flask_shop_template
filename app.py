@@ -180,7 +180,7 @@ def create_app() -> Flask:
         # Delete product record.
         db.session.delete(product)
         db.session.commit()
-        flash("Product and its image deleted successfully.", "info")
+        flash("Product deleted successfully.", "warning")
         return redirect(url_for("dashboard"))
 
     @app.route("/dashboard/edit-product/<int:product_id>", methods=["GET", "POST"])
@@ -262,7 +262,7 @@ def create_app() -> Flask:
 
         # Validate quantity.
         if quantity <= 0:
-            flash("Invalid quantity.", "warning")
+            flash("Invalid quantity.", "danger")
             return redirect(url_for("catalog"))
 
         # Get current cart.
@@ -280,7 +280,7 @@ def create_app() -> Flask:
         cart[key] = current_quantity + quantity
         save_cart(cart)
 
-        flash(f"Added {quantity} x {product.title} to cart.", "success")
+        flash("Product added to cart.", "success")
         return redirect(url_for("catalog"))
 
     @app.context_processor
@@ -333,7 +333,7 @@ def create_app() -> Flask:
             # Remove item and save cart.
             del cart[product_id_str]
             save_cart(cart)
-            flash("Item removed from cart.", "info")
+            flash("Item removed from cart.", "warning")
         return redirect(url_for("cart"))
 
     @app.route("/checkout", methods=["POST"])
@@ -359,7 +359,7 @@ def create_app() -> Flask:
 
             # Validate stock per item.
             if not product or product.quantity < quantity:
-                flash(f"Not enough stock for {product.title}.", "danger")
+                flash("Not enough stock.", "danger")
                 return redirect(url_for("cart"))
 
             # Decrease product stock.

@@ -1,26 +1,40 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Register</h2>
-<form method="post">
-    <div>
-        <label>Username</label>
-        <input type="text" name="username" required />
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow">
+            <div class="p-4 card-body">
+                <h2 class="mb-3 card-title text-center">Register</h2>
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Username:</label>
+                        <input class="form-control" type="text" name="username" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email:</label>
+                        <input class="form-control" type="email" name="email" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Password:</label>
+                        <input class="form-control" type="password" name="password" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Confirm Password:</label>
+                        <input class="form-control" type="password" name="confirm_password" required>
+                    </div>
+
+                    <button class="btn btn-primary" type="submit">Register</button>
+
+                    <p class="text-end">
+                        <a href="{{ url_for('auth.login') }}">Login</a>
+                    </p>
+                </form>
+            </div>
+        </div>
     </div>
-
-    <div>
-        <label>Email</label>
-        <input type="email" name="email" required />
-    </div>
-
-    <div>
-        <label>Password</label>
-        <input type="password" name="password" required />
-    </div>
-
-    <button type="submit">Register</button>
-
-    <p>
-        <a href="{{ url_for('auth.login') }}">Login</a>
-    </p>
-</form>
+</div>
 {% endblock %}

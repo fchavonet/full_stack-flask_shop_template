@@ -36,21 +36,27 @@ def register():
         username = request.form.get("username")
         email = request.form.get("email")
         password = request.form.get("password")
+        confirm_password = request.form.get("confirm_password")
 
         # Require all fields.
-        if not username or not email or not password:
+        if not username or not email or not password or not confirm_password:
             flash("All fields are required.", "danger")
+            return redirect(url_for("auth.register"))
+
+        # Check if passwords match.
+        if password != confirm_password:
+            flash("Passwords do not match.", "danger")
             return redirect(url_for("auth.register"))
 
         # Check password format.
         if not PASSWORD_PATTERN.match(password):
-            flash("Password must be at least 8 characters long and contain at least one uppercase letter.", "danger",)
+            flash("Password must be at least 8 characters long and contain at least one uppercase letter.", "danger")
             return redirect(url_for("auth.register"))
 
         # Check duplicates.
         existing = User.query.filter((User.username == username) | (User.email == email)).first()
         if existing:
-            flash("User already exists.", "warning")
+            flash("User already exists.", "danger")
             return redirect(url_for("auth.register"))
 
         # Create user.
@@ -105,7 +111,7 @@ def logout():
     """
 
     logout_user()
-    flash("Logged out.", "info")
+    flash("Logged out.", "warning")
     return redirect(url_for("index"))
 
 
@@ -134,7 +140,7 @@ def profile():
             # Check for duplicates.
             duplicate = User.query.filter(((User.username == new_username) | (User.email == new_email)) & (User.id != current_user.id)).first()
             if duplicate:
-                flash("Username or email already taken.", "warning")
+                flash("Username or email already taken.", "danger")
                 return redirect(url_for("auth.profile"))
 
             current_user.username = new_username
@@ -165,7 +171,7 @@ def profile():
 
             # Flash if no file was selected.
             if file.filename == "":
-                flash("No selected file.", "warning")
+                flash("No selected file.", "danger")
                 return redirect(url_for("auth.profile"))
 
             # Flash if file extension is not allowed.
@@ -173,7 +179,6 @@ def profile():
                 flash("File type not allowed.", "danger")
                 return redirect(url_for("auth.profile"))
 
-            
             profile_picture_folder = current_app.config["PROFILE_PICTURE_FOLDER"]
             if not os.path.exists(profile_picture_folder):
                 os.makedirs(profile_picture_folder)
