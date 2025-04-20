@@ -187,6 +187,9 @@ def create_app() -> Flask:
 
         product = Product.query.get_or_404(product_id)
 
+        # Empty users' cart.
+        CartItem.query.filter_by(product_id=product.id).delete()
+
         # Remove image file if not default.
         default_image = current_app.config["DEFAULT_PRODUCT_PICTURE"]
         if product.image != default_image:
