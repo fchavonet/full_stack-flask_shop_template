@@ -1,11 +1,11 @@
 import os
-from flask import Flask, current_app, flash, redirect, render_template, request, session, url_for
+from flask import Flask, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, LoginManager, login_required
 from werkzeug.utils import secure_filename
 
 from auth import auth_bp
 from config import Config
-from models import db, Order, OrderItem, Product, User
+from models import db, CartItem, Order, OrderItem, Product, User
 from sqlalchemy import func
 from urllib.parse import urlparse
 
@@ -17,25 +17,6 @@ def allowed_file(filename: str) -> bool:
 
     # Return True if filename has an allowed extension.
     return ("." in filename and filename.rsplit(".", 1)[1].lower() in current_app.config["IMAGE_EXTENSIONS"])
-
-
-def get_cart():
-    """
-    Retrieve shopping cart from session.
-    """
-
-    # Return cart or empty dict if not set.
-    return session.get("cart", {})
-
-
-def save_cart(cart):
-    """
-    Save shopping cart to session.
-    """
-
-    # Store cart in session and mark modified.
-    session["cart"] = cart
-    session.modified = True
 
 
 def create_app() -> Flask:
@@ -74,6 +55,33 @@ def create_app() -> Flask:
 
         return render_template("main/index.html", title="Home")
 
+    @app.route("/about")
+    def about():
+        """
+        Render about page.
+        """
+
+        # Render about template.
+        return render_template("main/about.html", title="About")
+
+    @app.route("/terms_of_use")
+    def terms_of_use():
+        """
+        Render terms of use page.
+        """
+
+        # Render terms of use template.
+        return render_template("policies/terms_of_use.html", title="Terms of Use")
+
+    @app.route("/legals")
+    def legals():
+        """
+        Render legals page.
+        """
+
+        # Render legals template.
+        return render_template("policies/legals.html", title="Legals")
+
     @app.context_processor
     def inject_products():
         """
@@ -100,14 +108,13 @@ def create_app() -> Flask:
 
         return dict(latest_products=latest_products, top_products=top_products)
 
-    @app.route("/about")
-    def about():
-        """
-        Render about page.
-        """
-
-        # Render about template.
-        return render_template("main/about.html", title="About")
+    @app.context_processor
+    def inject_cart_quantity():
+        if current_user.is_authenticated:
+            count = db.session.query(func.sum(CartItem.quantity)).filter_by(user_id=current_user.id).scalar() or 0
+        else:
+            count = 0
+        return dict(cart_quantity=count)
 
     @app.route("/dashboard")
     @login_required
@@ -293,32 +300,24 @@ def create_app() -> Flask:
             return redirect(next_page)
 
         # Get current cart.
-        cart = get_cart()
-
-        key = str(product_id)
-        current_quantity = cart.get(key, 0)
+        item = CartItem.query.filter_by(user_id=current_user.id, product_id=product.id).first()
+        current_quantity = item.quantity if item else 0
+        total_requested = current_quantity + quantity
 
         # Check stock availability.
-        if current_quantity + quantity > product.quantity:
+        if total_requested > product.quantity:
             flash("Not enough stock available.", "danger")
             return redirect(next_page)
 
-        # Update cart and save.
-        cart[key] = current_quantity + quantity
-        save_cart(cart)
+        if item:
+            item.quantity += quantity
+        else:
+            item = CartItem(user_id=current_user.id, product_id=product.id, quantity=quantity)
+            db.session.add(item)
 
+        db.session.commit()
         flash("Product added to cart.", "success")
         return redirect(next_page)
-
-    @app.context_processor
-    def inject_cart_quantity():
-        """
-        Inject total cart item count into template context.
-        """
-
-        cart = get_cart()
-        quantity = sum(cart.values()) if cart else 0
-        return dict(cart_quantity=quantity)
 
     @app.route("/cart")
     @login_required
@@ -327,24 +326,23 @@ def create_app() -> Flask:
         Display shopping cart contents.
         """
 
-        cart = get_cart()
-        items = []
+        items = CartItem.query.filter_by(user_id=current_user.id).all()
+        cart_items = []
         total = 0
 
-        for product_id, quantity in cart.items():
-            product = Product.query.get(int(product_id))
-            if product:
-                # Calculate subtotal and add to total.
-                subtotal = product.price * quantity
-                total += subtotal
-                items.append({
-                    "product": product,
-                    "quantity": quantity,
-                    "subtotal": subtotal
-                })
+        for item in items:
+            product = item.product
+            # Calculate subtotal and add to total.
+            subtotal = product.price * item.quantity
+            total += subtotal
+            cart_items.append({
+                "product": product,
+                "quantity": item.quantity,
+                "subtotal": subtotal
+            })
 
         # Render cart template with items and total.
-        return render_template("shop/cart.html", title="Cart", items=items, total=total)
+        return render_template("shop/cart.html", title="Cart", items=cart_items, total=total)
 
     @app.route("/remove-from-cart/<int:product_id>", methods=["POST"])
     @login_required
@@ -353,13 +351,11 @@ def create_app() -> Flask:
         Remove item from shopping cart.
         """
 
-        cart = get_cart()
-        product_id_str = str(product_id)
-
-        if product_id_str in cart:
+        item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+        if item:
             # Remove item and save cart.
-            del cart[product_id_str]
-            save_cart(cart)
+            db.session.delete(item)
+            db.session.commit()
             flash("Item removed from cart.", "warning")
         return redirect(url_for("cart"))
 
@@ -370,10 +366,10 @@ def create_app() -> Flask:
         Process checkout and create order.
         """
 
-        cart = get_cart()
+        items = CartItem.query.filter_by(user_id=current_user.id).all()
 
         # Ensure cart is not empty.
-        if not cart:
+        if not items:
             flash("Your cart is empty.", "warning")
             return redirect(url_for("cart"))
 
@@ -381,30 +377,30 @@ def create_app() -> Flask:
         order = Order(user_id=current_user.id)
         db.session.add(order)
 
-        for product_id, quantity in cart.items():
-            product = Product.query.get(int(product_id))
+        for item in items:
+            product = item.product
 
             # Validate stock per item.
-            if not product or product.quantity < quantity:
+            if not product or product.quantity < item.quantity:
                 flash("Not enough stock.", "danger")
                 return redirect(url_for("cart"))
 
             # Decrease product stock.
-            product.quantity -= quantity
+            product.quantity -= item.quantity
 
             # Create order item record.
             order_item = OrderItem(
                 order=order,
                 product_id=product.id,
-                quantity=quantity,
+                quantity=item.quantity,
                 product_title=product.title,
                 product_price=product.price
             )
             db.session.add(order_item)
 
         # Commit all changes and clear cart.
+        CartItem.query.filter_by(user_id=current_user.id).delete()
         db.session.commit()
-        session.pop("cart", None)
         flash("Order placed successfully!", "success")
         return redirect(url_for("order_history"))
 
@@ -418,24 +414,6 @@ def create_app() -> Flask:
         # Retrieve orders sorted by creation date.
         orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).all()
         return render_template("shop/orders.html", orders=orders)
-
-    @app.route("/terms_of_use")
-    def terms_of_use():
-        """
-        Render terms of use page.
-        """
-
-        # Render terms of use template.
-        return render_template("policies/terms_of_use.html", title="Terms of Use")
-
-    @app.route("/legals")
-    def legals():
-        """
-        Render legals page.
-        """
-
-        # Render legals template.
-        return render_template("policies/legals.html", title="Legals")
 
     @app.cli.command("init-database")
     def init_db():

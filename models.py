@@ -83,7 +83,7 @@ class OrderItem(db.Model):
     # Foreign key referencing the parent order.
     order_id = db.Column(db.Integer, db.ForeignKey("order.id"), nullable=False)
     # Foreign key referencing the product (nullable if removed).
-    product_id = db.Column(db.Integer, db.ForeignKey( "product.id"), nullable=True)  # peut devenir NULL si supprimé
+    product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=True)
     # Quantity of this product in the order.
     quantity = db.Column(db.Integer, nullable=False)
     # Local copy of the product title.
@@ -92,3 +92,22 @@ class OrderItem(db.Model):
     product_price = db.Column(db.Float, nullable=False)
     # Relationship to the Product model.
     product = db.relationship("Product", foreign_keys=[product_id])
+
+
+class CartItem(db.Model):
+    """
+    Items model for temporary cart (before checkout).
+    """
+
+    # Primary key for the cart item record.
+    id = db.Column(db.Integer, primary_key=True)
+    # Foreign key referencing the owning user.
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    # Foreign key referencing the added product.
+    product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
+    # Quantity of this product in the cart.
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+    # Relationship to the User model.
+    user = db.relationship("User", backref="cart_items")
+    # Relationship to the Product model.
+    product = db.relationship("Product")
