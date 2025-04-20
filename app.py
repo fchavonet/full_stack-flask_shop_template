@@ -6,6 +6,8 @@ from werkzeug.utils import secure_filename
 from auth import auth_bp
 from config import Config
 from models import db, Order, OrderItem, Product, User
+from sqlalchemy import func
+from urllib.parse import urlparse
 
 
 def allowed_file(filename: str) -> bool:
@@ -67,27 +69,36 @@ def create_app() -> Flask:
     @app.route("/")
     def index():
         """
-        Render home page with featured products.
+        Render home page.
         """
 
-        # Query latest 4 products in descending ID order.
-        latest_products = Product.query.order_by(Product.id.desc()).limit(4).all()
+        return render_template("main/index.html", title="Home")
 
-        # Import aggregation function.
-        from sqlalchemy import func
+    @app.context_processor
+    def inject_products():
+        """
+        Injects the latest and top-selling products into the template context.
+        """
 
-        # Query top 4 products by total ordered quantity.
-        top_products = (
-            db.session.query(Product, func.sum(OrderItem.quantity).label("total"))
+        latest_products = (
+            Product.query
+            .order_by(Product.id.desc())
+            .limit(4)
+            .all()
+        )
+
+        top_query = (
+            db.session
+            .query(Product, func.sum(OrderItem.quantity).label("total"))
             .join(OrderItem, Product.id == OrderItem.product_id)
             .group_by(Product.id)
             .order_by(func.sum(OrderItem.quantity).desc())
             .limit(4)
             .all()
         )
+        top_products = [p for p, _ in top_query]
 
-        # Render index template with product lists.
-        return render_template("index.html", latest_products=latest_products, top_products=[p for p, _ in top_products], title="Home")
+        return dict(latest_products=latest_products, top_products=top_products)
 
     @app.route("/about")
     def about():
@@ -96,7 +107,7 @@ def create_app() -> Flask:
         """
 
         # Render about template.
-        return render_template("about.html", title="About")
+        return render_template("main/about.html", title="About")
 
     @app.route("/dashboard")
     @login_required
@@ -273,10 +284,13 @@ def create_app() -> Flask:
         product = Product.query.get_or_404(product_id)
         quantity = int(request.form.get("quantity", 1))
 
+        next_page = request.form.get("next") or request.referrer or url_for("catalog")
+        if urlparse(next_page).netloc: next_page = url_for("catalog")
+
         # Validate quantity.
         if quantity <= 0:
             flash("Invalid quantity.", "danger")
-            return redirect(url_for("catalog"))
+            return redirect(next_page)
 
         # Get current cart.
         cart = get_cart()
@@ -287,14 +301,14 @@ def create_app() -> Flask:
         # Check stock availability.
         if current_quantity + quantity > product.quantity:
             flash("Not enough stock available.", "danger")
-            return redirect(url_for("catalog"))
+            return redirect(next_page)
 
         # Update cart and save.
         cart[key] = current_quantity + quantity
         save_cart(cart)
 
         flash("Product added to cart.", "success")
-        return redirect(url_for("catalog"))
+        return redirect(next_page)
 
     @app.context_processor
     def inject_cart_quantity():
@@ -412,7 +426,7 @@ def create_app() -> Flask:
         """
 
         # Render terms of use template.
-        return render_template("conditions/terms_of_use.html", title="Terms of Use")
+        return render_template("policies/terms_of_use.html", title="Terms of Use")
 
     @app.route("/legals")
     def legals():
@@ -421,7 +435,7 @@ def create_app() -> Flask:
         """
 
         # Render legals template.
-        return render_template("conditions/legals.html", title="Legals")
+        return render_template("policies/legals.html", title="Legals")
 
     @app.cli.command("init-database")
     def init_db():

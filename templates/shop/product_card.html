@@ -7,8 +7,8 @@
 
         <div class="card-body">
             <h5 class="card-title">{{ product.title }}</h5>
-            <p class="card-text mb-1">{{ "%.2f"|format(product.price) }} €</p>
-            <small class="text-muted">Quantity: {{ product.quantity }}</small>
+            <p class="mb-1 card-text text-primary">{{ "%.2f"|format(product.price) }} €</p>
+            <small class="text-muted">Quantity: <span class="badge bg-secondary">{{ product.quantity }}</span></small>
         </div>
     </a>
 
@@ -17,6 +17,7 @@
     <div class="card-footer border-top bg-white d-flex align-items-center justify-content-center" style="height: 70px;">
         {% if product.quantity > 0 %}
         <form class="w-100 d-flex justify-content-between align-items-center" method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}">
+            <input type="hidden" name="next" value="{{ request.full_path }}">
             <input class="w-100 me-2 form-control" style="width: 80px;" type="number" name="quantity" value="1" min="1" max="{{ product.quantity }}">
 
             <button class="btn btn-primary" type="submit" >
