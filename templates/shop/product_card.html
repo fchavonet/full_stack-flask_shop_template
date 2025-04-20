@@ -13,7 +13,7 @@
     </a>
 
     <!-- Card footer -->
-    {% if current_user.is_authenticated and not current_user.is_admin %}
+    {% if not current_user.is_admin %}
     <div class="card-footer border-top bg-white d-flex align-items-center justify-content-center" style="height: 70px;">
         {% if product.quantity > 0 %}
         <form class="w-100 d-flex justify-content-between align-items-center" method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}">

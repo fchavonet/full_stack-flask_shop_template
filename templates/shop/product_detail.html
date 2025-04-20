@@ -18,6 +18,7 @@
 			</small>
 
 			<!-- Add to cart section -->
+			{% if not current_user.is_admin %}
 			{% if product.quantity > 0 %}
 			<form class="d-flex align-items-center gap-3" method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}">
 				<input type="hidden" name="next" value="{{ request.full_path }}">
@@ -32,6 +33,7 @@
 			</form>
 			{% else %}
 			<span class="badge bg-danger fs-5">SOLD OUT</span>
+			{% endif %}
 			{% endif %}
 
 			<div class="mt-4">
