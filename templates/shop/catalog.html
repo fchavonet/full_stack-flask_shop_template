@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <!-- Sorting bar -->
-<form class="mb-4" method="get">
+<form class="mb-5" method="get">
     <div class="row align-items-center">
         <div class="col-auto">
             <label for="sort_by" class="col-form-label fw-bold">Sort by:</label>
@@ -22,7 +22,7 @@
 <!-- Product grid -->
 <div class="row">
     {% for product in products.items %}
-    <div class="col-12 col-md-6 col-lg-3 mb-4">
+    <div class="col-12 col-md-6 col-lg-3 mb-5">
         {% include "shop/product_card.html" %}
     </div>
     {% endfor %}

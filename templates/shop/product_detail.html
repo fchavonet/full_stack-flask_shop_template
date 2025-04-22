@@ -1,47 +1,58 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container">
-	<div class="row align-items-stretch">
-		<!-- Image section -->
-		<div class="mb-4 mb-lg-0 col-lg-6">
-			<img class="img-fluid rounded shadow-sm" src="{{ url_for('static', filename='images/product_pictures/' + product.image) }}" alt="{{ product.title }}">
-		</div>
+<section class="row align-items-stretch mb-5">
+	<!-- Image section -->
+	<div class="mb-4 mb-lg-0 col-lg-6">
+		<img class="img-fluid rounded shadow-sm" src="{{ url_for('static', filename='images/product_pictures/' + product.image) }}" alt="{{ product.title }}">
+	</div>
 
-		<!-- Details section -->
-		<div class="col-lg-6 d-flex flex-column">
-			<h1 class="mb-4">{{ product.title }}</h1>
-			<p class="mb-4">{{ product.description }}</p>
+	<!-- Details section -->
+	<div class="col-lg-6 d-flex flex-column">
+		<h1 class="mb-4">{{ product.title }}</h1>
+		<p class="mb-4">{{ product.description }}</p>
+		
+		<small class="mb-2 mt-auto">
 			<p class="mb-4 h4"><span class="text-primary">{{ "%.2f"|format(product.price) }} €</span></p>
+			Quantity: <span class="badge bg-secondary">{{ product.quantity }}</span>
+		</small>
 
-			<small class="mb-2 mt-auto">
-				Quantity: <span class="badge bg-secondary">{{ product.quantity }}</span>
-			</small>
+		<!-- Add to cart section -->
+		{% if not current_user.is_admin %}
+		{% if product.quantity > 0 %}
+		<form class="d-flex align-items-center gap-3" method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}">
+			<input type="hidden" name="next" value="{{ request.full_path }}">
 
-			<!-- Add to cart section -->
-			{% if not current_user.is_admin %}
-			{% if product.quantity > 0 %}
-			<form class="d-flex align-items-center gap-3" method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}">
-				<input type="hidden" name="next" value="{{ request.full_path }}">
-
-				<div class="input-group" style="width: 65px;">
-					<input class="form-control" type="number" name="quantity" value="1" min="1" max="{{ product.quantity }}" aria-label="Quantity">
-				</div>
-
-				<button type="submit" class="btn btn-primary">
-					<i class="me-2 bi bi-bag-plus-fill"></i>Add to cart
-				</button>
-			</form>
-			{% else %}
-			<span class="badge bg-danger fs-5">SOLD OUT</span>
-			{% endif %}
-			{% endif %}
-
-			<div class="mt-4">
-				<a class="btn btn-outline-secondary" href="{{ url_for('catalog') }}">
-					<i class="me-1 bi bi-arrow-left"></i>Back to catalog
-				</a>
+			<div class="input-group" style="width: 65px;">
+				<input class="form-control" type="number" name="quantity" value="1" min="1" max="{{ product.quantity }}" aria-label="Quantity">
 			</div>
+
+			<button type="submit" class="btn btn-primary">
+				<i class="me-2 bi bi-bag-plus-fill"></i>Add to cart
+			</button>
+		</form>
+		{% else %}
+		<span class="badge bg-danger fs-5">SOLD OUT</span>
+		{% endif %}
+		{% endif %}
+
+		<div class="mt-5">
+			<a class="btn btn-outline-secondary" href="{{ url_for('catalog') }}">
+				<i class="me-1 bi bi-arrow-left"></i>Back to catalog
+			</a>
 		</div>
 	</div>
-</div>
+</section>
+
+<!-- Top products -->
+<section>
+    <h2 class="section-title text-center mb-4">Top Products</h2>
+
+    <div class="row g-4 justify-content-center">
+        {% for product in top_products %}
+        <div class="col-12 col-md-6 col-lg-3">
+            {% include "shop/product_card.html" %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
 {% endblock %}
