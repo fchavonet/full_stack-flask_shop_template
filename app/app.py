@@ -1,13 +1,13 @@
 import os
 from flask import Flask, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, LoginManager, login_required
-from werkzeug.utils import secure_filename
-
-from auth import auth_bp
-from config import Config
-from models import db, CartItem, Order, OrderItem, Product, User
 from sqlalchemy import func
 from urllib.parse import urlparse
+from werkzeug.utils import secure_filename
+
+from app.auth import auth_bp
+from app.models import db, CartItem, Order, OrderItem, Product, User
+from config import Config
 
 
 def allowed_file(filename: str) -> bool:
@@ -24,7 +24,11 @@ def create_app() -> Flask:
     Build and return the Flask application.
     """
 
-    app = Flask(__name__)
+    app = Flask(
+        __name__,
+        static_folder="../static",
+        template_folder="../templates"
+    )
     app.config.from_object(Config)
 
     # Initialize database.

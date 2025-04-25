@@ -4,10 +4,10 @@ from flask import Blueprint, current_app, flash, redirect, render_template, requ
 from flask_login import current_user, login_user, login_required, logout_user
 from werkzeug.utils import secure_filename
 
-from models import db, User
+from app.models import db, User
 
 # Create blueprint.
-auth_bp = Blueprint("auth", __name__)
+auth_bp = Blueprint("auth", __name__, template_folder="../templates/auth")
 
 # Require one uppercase and at least eight chars.
 PASSWORD_PATTERN = re.compile(r"^(?=.*[A-Z]).{8,}$")
