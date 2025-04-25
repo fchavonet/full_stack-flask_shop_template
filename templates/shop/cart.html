@@ -1,39 +1,95 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Your Cart</h2>
+<h2 class="section-title text-center mb-4">Cart</h2>
+
+<!-- Cart section -->
 {% if items %}
-<table>
-    <thead>
-        <tr>
-            <th>Product</th>
-            <th>Qty</th>
-            <th>Subtotal</th>
-            <th></th>
-        </tr>
-    </thead>
-    
-    <tbody>
-        {% for item in items %}
-        <tr>
-            <td>{{ item.product.title }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>${{ "%.2f"|format(item.subtotal) }}</td>
-            <td>
-                <form method="post" action="{{ url_for('remove_from_cart', product_id=item.product.id) }}">
-                    <button type="submit">Remove</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<section class="mb-4 table-responsive table-rounded border">
+    <table table class="table table-hover align-middle text-center">
+        <!-- Header -->
+        <thead class="table-dark">
+            <tr>
+                <th scope="col" class="d-none d-lg-table-cell">Image</th>
+                <th scope="col">Product</th>
+                <th scope="col">Qty</th>
+                <th scope="col">Subtotal</th>
+                <th scope="col">Remove</th>
+            </tr>
+        </thead>
 
-<p><strong>Total:</strong> ${{ "%.2f"|format(total) }}</p>
+        <!-- Body -->
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td class="d-none d-lg-table-cell">
+                    <img class="img-fluid rounded" width="50" height="50" src="{{ url_for('static', filename='images/product_pictures/' + (item.product.image or config.DEFAULT_PRODUCT_PICTURE)) }}" style="object-fit:cover;" alt="{{ item.product.title }}">
+                </td>
 
-<form method="post" action="{{ url_for('checkout') }}">
-    <button type="submit">Checkout</button>
-</form>
+                <td>
+                    <a href="{{ url_for('product_detail', product_id=item.product.id) }}"
+                        class="text-decoration-none text-dark">
+                        {{ item.product.title }}
+                    </a>
+                </td>
+
+                <td>{{ item.quantity }}</td>
+
+                <td>{{ "%.2f"|format(item.subtotal) }} €</td>
+                <td>
+                    <form method="post" action="{{ url_for('remove_from_cart', product_id=item.product.id) }}">
+                        <button class="btn btn-sm btn-danger" type="submit">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+        <!-- Footer -->
+        <tfoot class="table-dark">
+            <tr>
+                <td class="d-none d-lg-table-cell"></td>
+                <td></td>
+                <td class="fw-bold">{{ items|sum(attribute="quantity") }}</td>
+                <td class="fw-bold">{{ "%.2f"|format(items|sum(attribute="subtotal")) }} €</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+</section>
+
+<!-- Empty cart -->
 {% else %}
-<p>Your cart is empty.</p>
+<section class="alert alert-warning mb-3" role="alert">
+    Your cart is empty.
+</section>
+{% endif %}
+
+<!-- Action buttons -->
+<section class="d-grid gap-2 d-lg-block d-lg-flex justify-content-lg-between align-items-center mb-5">
+    <form method="post" action="{{ url_for('checkout') }}" class="order-1 order-lg-2">
+        <button class="btn btn-primary btn-lg w-100 w-lg-auto" type="submit"><i class="bi bi-credit-card">
+            </i>Checkout</i></button>
+    </form>
+
+    <a href="{{ url_for('catalog') }}" class="btn btn-outline-secondary btn-lg order-2 order-lg-1">
+        <i class="bi bi-arrow-left me-1"></i> Continue Shopping
+    </a>
+</section>
+
+<!-- Top Products Section -->
+{% if top_products %}
+<section>
+    <h2 class="section-title text-center mb-4">Top Products</h2>
+
+    <div class="row g-4 justify-content-center">
+        {% for product in top_products %}
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            {% include 'shop/product_card.html' %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
 {% endif %}
 {% endblock %}

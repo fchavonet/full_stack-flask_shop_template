@@ -60,6 +60,16 @@
     object-position: bottom;
 }
 
+/* CART */
+.table-rounded {
+    overflow: hidden;
+    border-radius: 0.5rem;
+}
+
+.table-rounded .table {
+    margin-bottom: 0;
+}
+
 /* RESPONSIVE */
 @media (max-width: 992px) {
     .fs-tiny {
