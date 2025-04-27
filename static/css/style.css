@@ -14,6 +14,10 @@
 }
 
 /* GENERAL */
+.container-small {
+    max-width: 992px;
+}
+
 .section-title {
     padding-bottom: 1rem;
     position: relative;

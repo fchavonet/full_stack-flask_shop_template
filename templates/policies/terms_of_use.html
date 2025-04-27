@@ -1,6 +1,75 @@
 {% extends "base.html" %}
 {% block content %}
-<div>
-    <h1>Terms of Use</h1>
-</div>
+
+<!-- Title -->
+<section class="mb-3">
+    <h2 class="display-5 text-center">Terms of Use</h2>
+    <p class="lead text-center text-muted">Please read these terms carefully before using our website.</p>
+</section>
+
+<!-- Terms of Use -->
+<section class="d-flex justify-content-center align-items-center">
+    <div class="container-small p-5 border rounded">
+        <h3 class="h5">1. Introduction</h3>
+        <p class="mb-4">
+            These terms of use govern your access to and use of this website. By using the site, you agree to abide by these terms. If you do not agree, please do not use the site.
+        </p>
+
+        <h3 class="h5">2. Eligibility</h3>
+        <p class="mb-4">
+            You must be at least 18 years old and capable of entering into a binding contract to use this site. By placing an order, you represent that you meet these requirements.
+        </p>
+
+        <h3 class="h5">3. Account Security</h3>
+        <p class="mb-4">
+            If you create an account, you are responsible for securing your credentials. Notify us immediately of any unauthorized access.
+        </p>
+
+        <h3 class="h5">4. Orders and Payment</h3>
+        <p class="mb-4">
+            All orders are subject to availability and confirmation of the order price. Payment is due at order placement via the methods listed on the site.
+        </p>
+
+        <h3 class="h5">5. Shipping and Delivery</h3>
+        <p class="mb-4">
+            We ship to the address you provide. Delivery times (2–5 business days) are estimates and may vary due to carrier delays.
+        </p>
+
+        <h3 id="returns" class="h5">6. Returns and Refunds</h3>
+        <p class="mb-4">
+            You may return most new, unopened items within 14 days for a full refund. Items must be in original packaging and in resalable condition.
+        </p>
+
+        <h3 class="h5">7. Intellectual Property</h3>
+        <p class="mb-4">
+            All site content (text, graphics, logos, images...) is owned or licensed by us and protected by copyright laws. You may not use any content without permission.
+        </p>
+
+        <h3 class="h5">8. Disclaimer of Warranties</h3>
+        <p class="mb-4">
+            The site is provided “as is” and “as available.” We disclaim all warranties, express or implied, including merchantability and fitness for a particular purpose.
+        </p>
+
+        <h3 class="h5">9. Limitation of Liability</h3>
+        <p class="mb-4">
+            To the fullest extent permitted by law, we shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the site.
+        </p>
+
+        <h3 class="h5">10. Changes to Terms</h3>
+        <p class="mb-4">
+            We may update these terms at any time. Continued use of the site after changes are posted constitutes acceptance of the new terms.
+        </p>
+
+        <h3 class="h5">11. Governing Law</h3>
+        <p class="mb-4">
+            These terms are governed by the laws of France, without regard to conflict of laws principles.
+        </p>
+
+        <h3 class="h5">12. Contact</h3>
+        <p class="mb-0">
+            If you have any questions about these terms, please <a href="{{ url_for('legals') }}#contact">contact us</a>.
+        </p>
+    </div>
+</section>
+
 {% endblock %}

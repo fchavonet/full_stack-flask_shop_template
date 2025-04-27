@@ -1,6 +1,66 @@
 {% extends "base.html" %}
 {% block content %}
-<div>
-    <h1>Legals</h1>
-</div>
+
+<!-- Title -->
+<section class="mb-3">
+    <h2 class="display-5 text-center">Legals</h2>
+    <p class="lead text-center text-muted">Find our company details, regulatory disclosures, and consumer rights information.</p>
+</section>
+
+<!-- Legal Notices -->
+<section class="d-flex justify-content-center align-items-center">
+    <div class="container-small p-5 border rounded">
+        <h3 class="h5">1. Company Information</h3>
+        <p class="mb-4 ps-5">
+            <strong>Flask Shop Template</strong>
+            <br>
+            Share capital: 10,000 €
+            <br>
+            RCS Paris B 880 514 369
+            <br>
+            Registered office: 37 Rue des Marchands, 31000 Toulouse, France<br>
+            VAT No.: FR28 880514369
+        </p>        
+
+        <h3 class="h5 mt-4">2. Publication Director</h3>
+        <p class="mb-4">
+            Julien Lefebvre, Chief Executive Officer.
+        </p>
+
+        <h3 class="h5">3. Website Host</h3>
+        <p class="mb-4 ps-5">
+            <strong>OVH SAS</strong>
+            <br>
+            2 Rue Kellermann, 59100 Roubaix, France
+            <br>
+            Phone: +33 9 72 10 10 07
+        </p>
+
+        <h3 class="h5">4. Data Protection</h3>
+        <p class="mb-4">
+            Under GDPR you have the right to access, rectify, erase and port your personal data. To exercise these rights, contact: <a href="mailto:privacy@example.com">privacy@example.com</a>.
+        </p>
+
+        <h3 class="h5">5. Cookies</h3>
+        <p class="mb-4">
+            This site uses cookies to improve navigation and analytics. You can set your browser to refuse cookies.
+        </p>
+
+        <h3 class="h5">6. Return &amp; Refund Policy</h3>
+        <p class="mb-4">
+            See “Returns & Refunds” on our <a href="{{ url_for('terms_of_use') }}#returns">Terms of Use</a>.
+        </p>
+
+        <h3 id="contact" class="h5">7. Contact</h3>
+        <p class="mb-0 ps-5">
+            <strong>Customer Support:</strong>
+            <br>
+            Phone: +33 1 23 45 67 89
+            <br>
+            Email: <a href="mailto:support@example.com">support@example.com</a>
+        </p>
+
+    </div>
+</section>
+
 {% endblock %}
