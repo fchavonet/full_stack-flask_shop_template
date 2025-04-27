@@ -1,14 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-<h2 class="section-title text-center mb-4">Order History</h2>
+
+<section class="text-center rounded">
+    <h2 class="display-5">Order History</h2>
+
+    <p class="lead text-muted">
+        View all your past orders, track their status, and reorder your favorite items with ease.
+    </p>
+</section>
 
 {% for order in orders %}
 <section class="mb-4 table-responsive table-rounded border">
     <div class="py-2 text-center">
-        <h3 class="mb-1 h5">
-            Order Nº {{ order.id }}
-        </h3>
-
         <time class="small text-muted" datetime="{{ order.created_at.isoformat() }}">
             {{ order.created_at.strftime("%B %d, %Y at %I:%M %p") }}
         </time>

@@ -65,8 +65,17 @@ def create_app() -> Flask:
         Render about page.
         """
 
+        team_members = [
+        {"name": "Julien Lefebvre",    "role": "CEO",    "photo": "julien.webp"},
+        {"name": "Elena García",       "role": "CTO",    "photo": "elena.webp"},
+        {"name": "Sofia Rossi",        "role": "COO",    "photo": "sofia.webp"},
+        {"name": "Marcus Johnson",     "role": "CFO",    "photo": "marcus.webp"},
+        {"name": "Léa Martin",         "role": "CMO",    "photo": "lea.webp"},
+        {"name": "David Nguyen",       "role": "HCS",    "photo": "david.webp"},
+        ]
+
         # Render about template.
-        return render_template("main/about.html", title="About")
+        return render_template("main/about.html", title="About", team_members=team_members)
 
     @app.route("/terms_of_use")
     def terms_of_use():

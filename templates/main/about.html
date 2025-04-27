@@ -1,6 +1,77 @@
 {% extends "base.html" %}
 {% block content %}
-<div>
-    <h1>About</h1>
-</div>
+
+<!-- Hero -->
+<section class="text-center rounded">
+    <h2 class="display-5">About Us</h2>
+
+    <p class="lead text-muted">
+        We’re on a mission to bring you the finest products, delivered fast and with a smile.
+    </p>
+
+    <img id="hero" class="img-fluid rounded" src="{{ url_for('static', filename='images/about/hero.webp') }}" alt="Hero picture">
+</section>
+
+<!-- Our Story -->
+<section class="py-5">
+    <h2 class="section-title text-center mb-4">Our Story</h2>
+
+    <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum consequatur aspernatur perferendis ullam, ducimus, similique consequuntur debitis iusto ex odit repudiandae exercitationem minus quasi illo numquam deleniti ab unde ipsum aliquid neque dicta corrupti porro ad. Vitae exercitationem rerum libero a distinctio culpa fugiat fuga perferendis accusantium tempore ratione, sunt voluptatem, asperiores eligendi, cupiditate excepturi dolore aperiam illo optio quam ab. Placeat, similique. Vero incidunt ipsa velit expedita, excepturi consequatur est veritatis aspernatur quisquam qui illum. Enim quibusdam totam quam, voluptatum expedita saepe esse ipsam at inventore tempora repellat dicta minima. Sequi dolor nobis amet unde soluta officiis mollitia tempora?
+    </p>
+</section>
+
+<!-- Meet the Team -->
+<section class="py-5 rounded bg-light">
+    <div class="row g-4 justify-content-center align-items-center">
+        <h2 class="section-title text-center mb-2">Meet the Team</h2>
+
+        {% for member in team_members %}
+        <div class="col-6 col-lg-2 text-center">
+            <img class="rounded-circle mb-3" width="100" height="100" src="{{ url_for('static', filename='images/about/team/' ~ member.photo) }}" alt="{{ member.name }}">
+            <h5 class="mb-1">{{ member.name }}</h5>
+            <p class="text-muted small">{{ member.role }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Statistics -->
+<section class="pt-5">
+    <div class="py-4 row text-center">
+        <div class="col-6 col-lg-3 mb-4">
+            <h3 class="display-6 mb-0">12,347+</h3>
+            <p class="text-muted">Products in Stock</p>
+        </div>
+
+        <div class="col-6 col-lg-3 mb-4">
+            <h3 class="display-6 mb-0">8,512+</h3>
+            <p class="text-muted">Products Sold</p>
+        </div>
+
+        <div class="col-6 col-lg-3 mb-4">
+            <h3 class="display-6 mb-0">98.3%</h3>
+            <p class="text-muted">On-Time Delivery</p>
+        </div>
+
+        <div class="col-6 col-lg-3 mb-4">
+            <h3 class="display-6 mb-0">94.6%</h3>
+            <p class="text-muted">Customer Satisfaction</p>
+        </div>
+    </div>
+</section>
+
+<!-- Call to action -->
+<section class="py-5 text-center border rounded">
+    <h2 class="mb-3">Ready to Shop?</h2>
+
+    <p class="mb-4 lead text-muted">
+        Browse our catalog and find something you love today.
+    </p>
+
+    <a class="btn btn-lg btn-primary" href="{{ url_for('catalog') }}">
+        <i class="bi bi-shop-window me-1"></i> View Catalog
+    </a>
+</section>
+
 {% endblock %}
