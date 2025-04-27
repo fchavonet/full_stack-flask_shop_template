@@ -93,6 +93,10 @@ class OrderItem(db.Model):
     # Relationship to the Product model.
     product = db.relationship("Product", foreign_keys=[product_id])
 
+    @property
+    def subtotal(self) -> float:
+        return self.quantity * self.product_price
+
 
 class CartItem(db.Model):
     """

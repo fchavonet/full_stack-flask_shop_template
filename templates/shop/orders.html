@@ -1,34 +1,57 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Order History</h1>
+<h2 class="section-title text-center mb-4">Order History</h2>
 
 {% for order in orders %}
-<div>
-    <h3>Order #{{ order.id }} - {{ order.created_at.strftime("%Y-%m-%d %H:%M") }}</h3>
-    <table>
-        <thead>
+<section class="mb-4 table-responsive table-rounded border">
+    <div class="py-2 text-center">
+        <h3 class="mb-1 h5">
+            Order Nº {{ order.id }}
+        </h3>
+
+        <time class="small text-muted" datetime="{{ order.created_at.isoformat() }}">
+            {{ order.created_at.strftime("%B %d, %Y at %I:%M %p") }}
+        </time>
+    </div>
+
+    <table table class="table table-hover align-middle text-center">
+        <!-- Header -->
+        <thead class="table-dark">
             <tr>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Unit Price</th>
-                <th>Subtotal</th>
+                <th class="w-25" scope="col">Product</th>
+                <th class="w-25" scope="col">Qty</th>
+                <th class="w-25" scope="col">Unit Price</th>
+                <th class="w-25" cscope="col">Subtotal</th>
             </tr>
         </thead>
-        
+
+        <!-- Body -->
         <tbody>
             {% for item in order.items %}
             <tr>
                 <td>{{ item.product_title }}</td>
                 <td>{{ item.quantity }}</td>
-                <td>${{ "%.2f"|format(item.product_price) }}</td>
-                <td>${{ "%.2f"|format(item.quantity * item.product_price) }}</td>
+                <td>{{ "%.2f"|format(item.product_price) }} €</td>
+                <td>{{ "%.2f"|format(item.quantity * item.product_price) }} €</td>
             </tr>
             {% endfor %}
         </tbody>
+
+        <!-- Footer -->
+        <tfoot class="table-dark">
+            <tr>
+                <td></td>
+                <td class="fw-bold">{{ order.items|sum(attribute="quantity") }}</td>
+                <td></td>
+                <td class="fw-bold">{{ "%.2f"|format(order.items|sum(attribute="subtotal")) }} €</td>
+            </tr>
+        </tfoot>
     </table>
-</div>
+</section>
 {% else %}
-<p>No orders found.</p>
+<section class="alert alert-warning mb-3" role="alert">
+    No orders found.
+</section>
 {% endfor %}
 
 {% endblock %}
