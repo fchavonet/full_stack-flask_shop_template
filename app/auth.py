@@ -4,7 +4,7 @@ from flask import Blueprint, current_app, flash, redirect, render_template, requ
 from flask_login import current_user, login_user, login_required, logout_user
 from werkzeug.utils import secure_filename
 
-from app.models import db, User
+from app.models import db, CartItem, Order, OrderItem, User
 
 # Create blueprint.
 auth_bp = Blueprint("auth", __name__, template_folder="../templates/auth")
@@ -143,22 +143,56 @@ def profile():
                 flash("Username or email already taken.", "danger")
                 return redirect(url_for("auth.profile"))
 
+            # Update user fields and save changes.
             current_user.username = new_username
             current_user.email = new_email
             db.session.commit()
-            flash("Profile updated.", "success")
+            flash("Profile info updated.", "success")
+            return redirect(url_for("auth.profile"))
+
+        if form_type == "address":
+            # Update user address.
+            street = request.form.get("street", "").strip()
+            postal_code = request.form.get("postal_code", "").strip()
+            city = request.form.get("city", "").strip()
+            country = request.form.get("country", "").strip()
+
+            # Ensure all address fields are provided.
+            if not street or not postal_code or not city or not country:
+                flash("All address fields are required.", "danger")
+                return redirect(url_for("auth.profile"))
+
+            # Format and update address.
+            current_user.address = f"{street}|{postal_code}|{city}|{country}"
+            db.session.commit()
+            flash("Address updated.", "success")
             return redirect(url_for("auth.profile"))
 
         if form_type == "password":
-            # Update password.
-            new_password = request.form.get("password")
+            # Handle password change
+            current_password = request.form.get("current_password")
+            new_password = request.form.get("new_password")
+            confirm_new_password = request.form.get("confirm_new_password")
+
+            # Check current password matches
+            if not current_user.check_password(current_password):
+                flash("Current password is incorrect.", "danger")
+                return render_template("auth/profile.html", title="Profile", active_tab="password")
+
+            # Check new password and confirmation match
+            if new_password != confirm_new_password:
+                flash("New passwords do not match.", "danger")
+                return render_template("auth/profile.html", title="Profile", active_tab="password")
+
+            # Validate new password format
             if not PASSWORD_PATTERN.match(new_password):
                 flash("Password must be at least 8 characters long and contain at least one uppercase letter.", "danger")
-                return redirect(url_for("auth.profile"))
+                return render_template("auth/profile.html", title="Profile", active_tab="password")
 
+            # Save new password
             current_user.set_password(new_password)
             db.session.commit()
-            flash("Password changed.", "success")
+            flash("Password changed successfully.", "success")
             return redirect(url_for("auth.profile"))
 
         if form_type == "picture":
@@ -205,3 +239,46 @@ def profile():
 
     # Render profile page.
     return render_template("auth/profile.html", title="Profile")
+
+
+@auth_bp.route("/delete-account", methods=["POST"])
+@login_required
+def delete_account():
+    """
+    Delete user account and related data (profile picture, cart, orders).
+    """
+
+    # Get profile picture folder and default picture filename.
+    profile_picture_folder = current_app.config["PROFILE_PICTURE_FOLDER"]
+    default_pic = current_app.config["DEFAULT_PROFILE_PICTURE"]
+    
+    # Delete user's profile picture if it is not the default one.
+    if current_user.profile_picture != default_pic:
+        pic_path = os.path.join(profile_picture_folder, current_user.profile_picture)
+        
+        if os.path.exists(pic_path):
+            os.remove(pic_path)
+
+    # Delete all items from user's cart.
+    CartItem.query.filter_by(user_id=current_user.id).delete()
+
+    # Delete all user's orders and their items.
+    orders = Order.query.filter_by(user_id=current_user.id).all()
+    for order in orders:
+        OrderItem.query.filter_by(order_id=order.id).delete()
+        db.session.delete(order)
+
+    # Save user ID and log out user.
+    user_id = current_user.id
+    logout_user()
+
+    # Delete user account from database.
+    user = User.query.get(user_id)
+    db.session.delete(user)
+
+    # Commit all changes to the database.
+    db.session.commit()
+
+    # Show confirmation message and redirect to home page.
+    flash("Your account and all associated data have been deleted.", "warning")
+    return redirect(url_for("index"))

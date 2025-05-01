@@ -1,51 +1,200 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Profile</h2>
 
-<!-- -->
-<img width="100" height="100" src="{{ url_for('static', filename='images/profile_pictures/' + current_user.profile_picture) }}" alt="Profile picture">
+<!-- Title -->
+<section class="mb-4">
+    <h2 class="display-5 text-center">Profile Settings</h2>
 
-<!-- -->
-<h3>Change profile picture:</h3>
+    <p class="lead text-center text-muted">
+        Edit your profile and manage your account.
+    </p>
+</section>
 
-<form method="post" enctype="multipart/form-data">
-	<input type="hidden" name="form_type" value="picture">
+<!-- Profil settings-->
+<section
+    class="mb-5 p-5 d-flex flex-column flex-lg-row justify-content-center align-items-center align-items-lg-start gap-5 rounded border">
+    <!-- Profile summary-->
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <img class="mb-4 rounded-circle" width="256" height="256" src="{{ url_for('static', filename='images/profile_pictures/' + current_user.profile_picture) }}" alt="Profile picture">
+        <h5 class="m-0">{{ current_user.username }}</h5>
+        <small class="mb-4 fst-italic text-primary">{{ current_user.email }}</small>
 
-	<input type="file" name="picture" accept="image/*" required>
+        <!-- Adress display -->
+        <div id="adress-display" class="p-3 d-flex justify-content-center align-items-center shadow-sm">
+            {% if current_user.address and not current_user.is_admin %}
+            <small class="w-100 text-muted">
+                <div class="text-truncate" style="max-width: 100%;">
+                    {{ current_user.address.split('|')[0] }}
+                </div>
 
-	<button type="submit">
-		Upload
-	</button>
-</form>
+                <div class="text-truncate" style="max-width: 100%;">
+                    {{ current_user.address.split('|')[1] }} {{ current_user.address.split('|')[2] }}
+                </div>
 
-<!-- -->
-<h3>Update information:</h3>
+                <div class="fw-semibold text-truncate" style="max-width: 100%;">
+                    {{ current_user.address.split('|')[3] }}
+                </div>
+            </small>
+            {% elif not current_user.is_admin %}
+            <small class="text-muted">No address saved yet.</small>
+            {% endif %}
+        </div>
+    </div>
 
-<form method="post">
-	<input type="hidden" name="form_type" value="info">
+    <!-- Settings forms -->
+    <div class="w-100 col">
+        <!-- Desktop tablist-->
+        <ul id="profile-tabs" class="nav nav-tabs mb-4 d-none d-lg-flex" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button id="info-tab" class="nav-link {% if active_tab=='info' or not active_tab %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-info" type="button" role="tab" aria-controls="tab-info" aria-selected="{% if active_tab=='info' or not active_tab %}true{% else %}false{% endif %}">
+                    Profile information
+                </button>
+            </li>
 
-	<label>Username:</label>
-	<input type="text" name="username" value="{{ current_user.username }}" required>
+            {% if not current_user.is_admin %}
+            <li class="nav-item" role="presentation">
+                <button id="address-tab" class="nav-link {% if active_tab=='address' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-address" type="button" role="tab" aria-controls="tab-address" aria-selected="{% if active_tab=='address' %}true{% else %}false{% endif %}">
+                    Address
+                </button>
+            </li>
+            {% endif %}
 
-	<label>Email:</label>
-	<input type="email" name="email" value="{{ current_user.email }}" required>
+            <li class="nav-item" role="presentation">
+                <button id="picture-tab" class="nav-link {% if active_tab=='picture' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-picture" type="button" role="tab" aria-controls="tab-picture" aria-selected="{% if active_tab=='picture' %}true{% else %}false{% endif %}">
+                    Change picture
+                </button>
+            </li>
 
-	<button type="submit">
-		Save
-	</button>
-</form>
+            <li class="nav-item" role="presentation">
+                <button id="password-tab" class="nav-link {% if active_tab=='password' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-password" type="button" role="tab" aria-controls="tab-password" aria-selected="{% if active_tab=='password' %}true{% else %}false{% endif %}">
+                    Change password
+                </button>
+            </li>
 
-<!-- -->
-<h3>Change password:</h3>
+            {% if not current_user.is_admin %}
+            <li class="nav-item" role="presentation">
+                <button id="delete-tab" class="nav-link text-danger {% if active_tab=='delete' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-delete" type="button" role="tab" aria-controls="tab-delete" aria-selected="{% if active_tab=='delete' %}true{% else %}false{% endif %}">
+                    Delete account
+                </button>
+            </li>
+            {% endif %}
+        </ul>
 
-<form method="post">
-	<input type="hidden" name="form_type" value="password">
+        <!-- Desktop content -->
+        <div class="tab-content d-none d-lg-block" id="profileTabsContent" style="min-height: 330px;">
+            <div id="tab-info" class="tab-pane fade {% if active_tab=='info' or not active_tab %}show active{% endif %}" role="tabpanel" aria-labelledby="info-tab">
+                {% include "partials/profile_info.html" %}
+            </div>
 
-	<label>New password:</label>
-	<input type="password" name="password" required>
+            {% if not current_user.is_admin %}
+            <div id="tab-address" class="tab-pane fade {% if active_tab=='address' %}show active{% endif %}" role="tabpanel" aria-labelledby="address-tab">
+                {% include "partials/profile_address.html" %}
+            </div>
+            {% endif %}
 
-	<button type="submit">
-		Change Password
-	</button>
-</form>
+            <div id="tab-picture" class="tab-pane fade {% if active_tab=='picture' %}show active{% endif %}" role="tabpanel" aria-labelledby="picture-tab">
+                {% include "partials/profile_picture.html" %}
+            </div>
+
+            <div id="tab-password" class="tab-pane fade {% if active_tab=='password' %}show active{% endif %}" role="tabpanel" aria-labelledby="password-tab">
+                {% include "partials/profile_password.html" %}
+            </div>
+
+            {% if not current_user.is_admin %}
+            <div id="tab-delete" class="tab-pane fade {% if active_tab=='delete' %}show active{% endif %}" role="tabpanel" aria-labelledby="delete-tab">
+                {% include "partials/profile_delete.html" %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Mobile accordion -->
+        <div class="accordion d-lg-none" id="profileAccordion">
+			<div class="accordion-item">
+				<h2 id="heading-info class="accordion-header"">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info" aria-controls="collapse-info" aria-expanded="false">
+						Profile information
+					</button>
+				</h2>
+
+				<div id="collapse-info" class="accordion-collapse collapse" aria-labelledby="heading-info" data-bs-parent="#profileAccordion">
+					<div class="accordion-body">
+						{% include "partials/profile_info.html" %}
+					</div>
+				</div>
+			</div>
+
+			{% if not current_user.is_admin %}
+			<div class="accordion-item">
+				<h2 id="heading-address" class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-address" aria-controls="collapse-address" aria-expanded="false">
+						Address
+					</button>
+				</h2>
+
+				<div id="collapse-address" class="accordion-collapse collapse" aria-labelledby="heading-address" data-bs-parent="#profileAccordion">
+					<div class="accordion-body">
+						{% include "partials/profile_address.html" %}
+					</div>
+				</div>
+			</div>
+			{% endif %}
+
+			<div class="accordion-item">
+				<h2 id="heading-picture" class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-picture" aria-controls="collapse-picture" aria-expanded="false">
+						Change picture
+					</button>
+				</h2>
+
+				<div id="collapse-picture" class="accordion-collapse collapse" aria-labelledby="heading-picture" data-bs-parent="#profileAccordion">
+					<div class="accordion-body">
+						{% include "partials/profile_picture.html" %}
+					</div>
+				</div>
+			</div>
+
+			<div class="accordion-item">
+				<h2 id="heading-password" class="accordion-header">
+					<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-password" aria-controls="collapse-password" aria-expanded="false">
+						Change password
+					</button>
+				</h2>
+
+				<div id="collapse-password" class="accordion-collapse collapse" aria-labelledby="heading-password" data-bs-parent="#profileAccordion">
+					<div class="accordion-body">
+						{% include "partials/profile_password.html" %}
+					</div>
+				</div>
+			</div>
+
+			{% if not current_user.is_admin %}
+			<div class="accordion-item">
+				<h2 id="heading-delete" class="accordion-header">
+					<button class="accordion-button collapsed text-danger" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-delete" aria-controls="collapse-delete" aria-expanded="false">
+						Delete account
+					</button>
+				</h2>
+                
+				<div id="collapse-delete" class="accordion-collapse collapse" aria-labelledby="heading-delete" data-bs-parent="#profileAccordion">
+					<div class="accordion-body">
+						{% include "partials/profile_delete.html" %}
+					</div>
+				</div>
+			</div>
+			{% endif %}
+		</div>
+    </div>
+</section>
+
+<!-- Account summary -->
+<section class="p-4 rounded bg-light">
+    <ul class="m-0 mb-4 list-unstyled text-muted">
+        <li>Email verified: <strong class="text-success">yes</strong></li>
+        <li>Last order on: <span class="fst-italic"></span></li>
+        <li>Orders placed: <strong></strong></li>
+    </ul>
+
+    <a href="{{ url_for('order_history') }}" class="btn btn-outline-primary mt-2">View Order History</a>
+</section>
+
 {% endblock %}

@@ -1,0 +1,27 @@
+<form method="post">
+    <input type="hidden" name="form_type" value="address">
+
+    <div class="mb-3">
+        <label class="form-label">Street address:</label>
+        <input class="form-control" type="text" name="street" value="{{ current_user.address.split('|')[0] if current_user.address else '' }}" required>
+    </div>
+
+    <div class="row">
+        <div class="mb-3 col-lg-6">
+            <label class="form-label">Postal code:</label>
+            <input class="form-control" type="text" name="postal_code" value="{{ current_user.address.split('|')[1] if current_user.address else '' }}" required>
+        </div>
+
+        <div class="mb-3 col-lg-6">
+            <label class="form-label">City:</label>
+            <input class="form-control" type="text" name="city" value="{{ current_user.address.split('|')[2] if current_user.address else '' }}" required>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Country:</label>
+        <input type="text" class="form-control" name="country" value="{{ current_user.address.split('|')[3] if current_user.address else '' }}" required>
+    </div>
+    
+    <button class="btn btn-primary" type="submit">Save Address</button>
+</form>

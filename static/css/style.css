@@ -82,6 +82,11 @@
     object-position: center;
 }
 
+/* PROFILE */
+#adress-display {
+    min-width: 16rem;
+}
+
 /* RESPONSIVE */
 @media (max-width: 992px) {
     .fs-tiny {

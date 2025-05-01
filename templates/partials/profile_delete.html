@@ -1,0 +1,13 @@
+<div class="alert alert-danger" role="alert">
+    <p>
+        Deleting your account will permanently remove all your data, including your orders and cart items.
+        <br>
+        This action cannot be undone.
+    </p>
+</div>
+
+<form method="post" action="{{ url_for('auth.delete_account') }}">
+    <button class="btn btn-danger" type="submit" onclick="return confirm('Are you absolutely sure you want to delete your account? This action is irreversible.');">
+        Delete My Account
+    </button>
+</form>

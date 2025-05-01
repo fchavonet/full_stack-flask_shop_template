@@ -17,12 +17,14 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, nullable=False)
     # Unique email address for contact.
     email = db.Column(db.String(120), unique=True, nullable=False)
+    # Full mailing address, stored as a single formatted string.
+    address = db.Column(db.String(255))
+    # Filename for user profile picture.
+    profile_picture = db.Column(db.String(128), default="default_profile.webp")
     # Hashed password for security.
     password_hash = db.Column(db.String(256), nullable=False)
     # Flag indicating if user has admin rights.
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
-    # Filename for user profile picture.
-    profile_picture = db.Column(db.String(128), default="default_profile.webp")
 
     def set_password(self, password: str) -> None:
         """
@@ -95,6 +97,10 @@ class OrderItem(db.Model):
 
     @property
     def subtotal(self) -> float:
+        """
+        Calculate the subtotal price for this order item.
+        """
+        
         return self.quantity * self.product_price
 
 
