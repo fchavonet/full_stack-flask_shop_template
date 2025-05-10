@@ -1,12 +1,44 @@
-{% extends "base.html" %}
-{% block content %}
-<h1>Edit Product</h1>
-<form method="post" enctype="multipart/form-data">
-    <input type="text" name="title" value="{{ product.title }}" required><br>
-    <textarea name="description" required>{{ product.description }}</textarea><br>
-    <input type="number" step="0.01" name="price" value="{{ product.price }}" required><br>
-    <input type="number" name="quantity" value="{{ product.quantity }}" required><br>
-    <input type="file" name="image" accept="image/*"><br>
-    <button type="submit">Update Product</button>
-</form>
-{% endblock %}
+<div id="editProductModal-{{ product.id }}" class="modal fade" tabindex="-1" aria-labelledby="editProductModalLabel-{{ product.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProductModalLabel-{{ product.id }}">Edit product</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <form method="post" action="{{ url_for('edit_product', product_id=product.id) }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Name:</label>
+                        <input type="text" name="title" class="form-control" value="{{ product.title }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description:</label>
+                        <textarea name="description" class="form-control" rows="8" required>{{ product.description }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Unit price:</label>
+                        <input type="number" step="0.01" name="price" class="form-control" value="{{ product.price }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Quantity:</label>
+                        <input type="number" name="quantity" class="form-control" value="{{ product.quantity }}" required>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label">Product image:</label>
+                        <input type="file" name="image" class="form-control" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
