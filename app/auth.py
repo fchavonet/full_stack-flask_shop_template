@@ -236,9 +236,19 @@ def profile():
             db.session.commit()
             flash("Profile picture updated.", "success")
             return redirect(url_for("auth.profile"))
+        
+    orders_query = Order.query.filter_by(user_id=current_user.id)
+    orders_count = orders_query.count()
+
+    last_order = orders_query.order_by(Order.created_at.desc()).first()
+
+    if last_order:
+        last_order_date = last_order.created_at.strftime("%d/%m/%Y")
+    else:
+        last_order_date = None
 
     # Render profile page.
-    return render_template("auth/profile.html", title="Profile")
+    return render_template("auth/profile.html", title="Profile", orders_count=orders_count, last_order_date=last_order_date)
 
 
 @auth_bp.route("/delete-account", methods=["POST"])

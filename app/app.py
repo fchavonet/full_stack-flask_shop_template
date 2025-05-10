@@ -1,4 +1,6 @@
 import os
+
+from datetime import datetime
 from flask import Flask, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, LoginManager, login_required
 from sqlalchemy import func
@@ -66,12 +68,12 @@ def create_app() -> Flask:
         """
 
         team_members = [
-        {"name": "Julien Lefebvre",    "role": "CEO",    "photo": "julien.webp"},
-        {"name": "Elena García",       "role": "CTO",    "photo": "elena.webp"},
-        {"name": "Sofia Rossi",        "role": "COO",    "photo": "sofia.webp"},
-        {"name": "Marcus Johnson",     "role": "CFO",    "photo": "marcus.webp"},
-        {"name": "Léa Martin",         "role": "CMO",    "photo": "lea.webp"},
-        {"name": "David Nguyen",       "role": "HCS",    "photo": "david.webp"},
+            {"name": "Julien Lefebvre",    "role": "CEO",    "photo": "julien.webp"},
+            {"name": "Elena García",       "role": "CTO",    "photo": "elena.webp"},
+            {"name": "Sofia Rossi",        "role": "COO",    "photo": "sofia.webp"},
+            {"name": "Marcus Johnson",     "role": "CFO",    "photo": "marcus.webp"},
+            {"name": "Léa Martin",         "role": "CMO",    "photo": "lea.webp"},
+            {"name": "David Nguyen",       "role": "HCS",    "photo": "david.webp"},
         ]
 
         # Render about template.
@@ -135,11 +137,45 @@ def create_app() -> Flask:
         """
         Render admin dashboard.
         """
-
         if not current_user.is_admin:
             return render_template("error/403.html"), 403
+
+        # Fetch all products for the table.
         products = Product.query.all()
-        return render_template("admin/dashboard.html", title="Dashboard", products=products)
+
+        # Count total orders across all time.
+        total_orders = Order.query.count()
+
+        # Sum total revenue across all orders.
+        total_revenue = db.session.query(func.sum(OrderItem.quantity * OrderItem.product_price)).scalar() or 0.0
+
+        # Determine the first day of the current month.
+        now = datetime.now()
+        month_start = datetime(now.year, now.month, 1)
+
+        # Count orders placed since the start of this month.
+        total_orders_month = Order.query.filter(Order.created_at >= month_start).count()
+
+        # Sum revenue from orders placed this month.
+        total_revenue_month = (
+            db.session
+            .query(func.sum(OrderItem.quantity * OrderItem.product_price))
+            .join(Order, OrderItem.order_id == Order.id)
+            .filter(Order.created_at >= month_start)
+            .scalar()
+            or 0.0
+        )
+
+        # Render the dashboard template with all metrics.
+        return render_template(
+            "admin/dashboard.html",
+            title="Dashboard",
+            products=products,
+            total_orders=total_orders,
+            total_revenue=total_revenue,
+            total_orders_month=total_orders_month,
+            total_revenue_month=total_revenue_month
+        )
 
     @app.route("/dashboard/add-product", methods=["GET", "POST"])
     @login_required

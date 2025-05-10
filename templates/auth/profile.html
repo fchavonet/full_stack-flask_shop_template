@@ -190,8 +190,16 @@
 <section class="p-4 rounded bg-light">
     <ul class="m-0 mb-4 list-unstyled text-muted">
         <li>Email verified: <strong class="text-success">yes</strong></li>
-        <li>Last order on: <span class="fst-italic"></span></li>
-        <li>Orders placed: <strong></strong></li>
+        <li>Last order on:
+            <span class="fst-italic">
+                {% if last_order_date %}
+                    {{ last_order_date }}
+                {% else %}
+                    no orders yet.
+                {% endif %}
+            </span>
+        </li>
+        <li>Orders placed: <strong>{{ orders_count }}</strong></li>
     </ul>
 
     <a href="{{ url_for('order_history') }}" class="btn btn-outline-primary mt-2">View Order History</a>

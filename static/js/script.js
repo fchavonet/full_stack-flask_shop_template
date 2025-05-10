@@ -4,6 +4,12 @@
 
 console.log("Flask Shop Template script loaded.");
 
+/*********************
+* REMOVE RIGHT CLICK *
+**********************/
+document.addEventListener("contextmenu", function (event) {
+  event.preventDefault();
+});
 
 /********************************
 * BOOTSTRAP TOAST AUTO-LAUNCHER *

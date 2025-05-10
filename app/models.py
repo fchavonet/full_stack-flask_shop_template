@@ -48,6 +48,8 @@ class Product(db.Model):
 
     # Primary key for the product record.
     id = db.Column(db.Integer, primary_key=True)
+    # Date and time when the product was added to the database.
+    date_added = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     # Title of the product.
     title = db.Column(db.String(100), nullable=False)
     # Detailed description of the product.

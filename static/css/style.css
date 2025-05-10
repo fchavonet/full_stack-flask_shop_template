@@ -13,6 +13,23 @@
     display: none;
 }
 
+/* SELECTION BEHAVIOR */
+* {
+    -moz-user-select: none;        /* Firefox */
+    -ms-user-select: none;         /* IE10+ */
+    -webkit-user-select: none;     /* Safari/Chrome */
+    user-select: none;             /* Standard syntax */
+}
+
+input,
+textarea,
+select {
+    -moz-user-select: text;        /* Firefox */
+    -ms-user-select: text;         /* IE10+ */
+    -webkit-user-select: text;     /* Safari/Chrome */
+    user-select: text;             /* Standard syntax */
+}
+
 /* GENERAL */
 .container-small {
     max-width: 992px;
@@ -42,6 +59,10 @@
 
 .table-rounded .table {
     margin-bottom: 0;
+}
+
+td {
+    border-color: #e2e3e5 !important;
 }
 
 /* HEADER */
