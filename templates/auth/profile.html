@@ -187,6 +187,7 @@
 </section>
 
 <!-- Account summary -->
+{% if not current_user.is_admin %}
 <section class="p-4 rounded bg-light">
     <ul class="m-0 mb-4 list-unstyled text-muted">
         <li>Email verified: <strong class="text-success">yes</strong></li>
@@ -204,5 +205,6 @@
 
     <a href="{{ url_for('order_history') }}" class="btn btn-outline-primary mt-2">View Order History</a>
 </section>
+{% endif %}
 
 {% endblock %}
