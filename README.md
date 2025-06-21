@@ -155,7 +155,7 @@ python run.py
 
 5. You can also download and run the included demo (G-Side Shop):
 
-- Download the ready-to-use archive: [demo-gside.zip](./assets/files/demo-gside.zip).
+- Download the ready-to-use archive: <a href="https://github.com/fchavonet/web-flask_shop_template/raw/main/assets/files/demo-gside.zip" download>demo-gside.zip</a>.
 - Extract it where you want to test the project.
 - Start the server as usual to explore the sample store, G-Side Shop, a fictional G-Shock® boutique.
 
@@ -171,27 +171,27 @@ This demo allows you to test a pre-configured environment and should give a resu
     </tr>
     <tr valign="top">
         <td align="center">
-            <img src="./assets/images/screenshot-home.png" alt="Home Screenshot" width="100%">
+            <img src="./assets/images/screenshot-home.webp" alt="Home Screenshot" width="100%">
         </td>
     </tr>
     <tr valign="top">
         <td align="center">
-            <img src="./assets/images/screenshot-about.png" alt="About Screenshot" width="100%">
+            <img src="./assets/images/screenshot-about.webp" alt="About Screenshot" width="100%">
         </td>
     </tr>
     <tr valign="top">
         <td align="center">
-            <img src="./assets/images/screenshot-catalog.png" alt="Catalog Screenshot" width="100%">
+            <img src="./assets/images/screenshot-catalog.webp" alt="Catalog Screenshot" width="100%">
         </td>
     </tr>
     <tr valign="top">
         <td align="center">
-            <img src="./assets/images/screenshot-dashboard.png" alt="Catalog Screenshot" width="100%">
+            <img src="./assets/images/screenshot-dashboard.webp" alt="Catalog Screenshot" width="100%">
         </td>
     </tr>
     <tr valign="top">
         <td align="center">
-            <img src="./assets/images/screenshot-profile.png" alt="Catalog Screenshot" width="100%">
+            <img src="./assets/images/screenshot-profile.webp" alt="Catalog Screenshot" width="100%">
         </td>
     </tr>
 </table>
